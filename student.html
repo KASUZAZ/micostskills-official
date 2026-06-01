@@ -57,7 +57,7 @@
     // ==========================================
 
     const LOCAL_API_ORIGIN = "http://localhost:3000";
-    const IS_STATIC_PREVIEW = window.location.protocol === "file:" || ["5500", "5501", "5502"].includes(window.location.port);
+    const IS_STATIC_PREVIEW = window.location.protocol === "file:" || window.location.hostname.endsWith("github.io") || ["5500", "5501", "5502"].includes(window.location.port);
     const API = IS_STATIC_PREVIEW ? LOCAL_API_ORIGIN : window.location.origin;
     let token = localStorage.getItem("token");
     let currentUser = JSON.parse(localStorage.getItem("user") || "null");
@@ -140,7 +140,7 @@
 
     function backendOfflineMessage() {
       return IS_STATIC_PREVIEW
-        ? `Backend tidak aktif. Jalankan server dahulu, kemudian buka ${LOCAL_API_ORIGIN}/student-portal.`
+        ? `Backend portal tidak aktif dalam static preview. Jalankan server dahulu, kemudian buka ${LOCAL_API_ORIGIN}/student-portal.`
         : "Backend tidak dapat dihubungi. Pastikan server MiCoSTSkills sedang berjalan.";
     }
 
@@ -434,7 +434,7 @@
         return;
       }
 
-      window.location.href = IS_STATIC_PREVIEW ? `${LOCAL_API_ORIGIN}/student-portal` : "/student-portal";
+      window.location.href = IS_STATIC_PREVIEW ? "./student.html" : "/student-portal";
     }
 
     function goToLecturerPortal() {
@@ -443,7 +443,7 @@
         return;
       }
 
-      window.location.href = IS_STATIC_PREVIEW ? `${LOCAL_API_ORIGIN}/lecturer-portal` : "/lecturer-portal";
+      window.location.href = IS_STATIC_PREVIEW ? "./student.html?portal=lecturer" : "/lecturer-portal";
     }
 
     function togglePasswordVisibility() {
