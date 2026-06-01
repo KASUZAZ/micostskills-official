@@ -1,4 +1,6 @@
-const API_ORIGIN = window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin;
+const API_ORIGIN = window.location.protocol === "file:" || window.location.hostname.endsWith("github.io")
+  ? "http://localhost:3000"
+  : window.location.origin;
 const courseType = document.body.dataset.course || "";
 const finalExamState = {
   answers: {},

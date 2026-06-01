@@ -4,6 +4,9 @@
 
 function loadSharedComponents() {
   const portalOrigin = window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin;
+  const isStaticPreview = window.location.protocol === "file:" || window.location.hostname.endsWith("github.io");
+  const studentPortalHref = isStaticPreview ? "./student.html" : `${portalOrigin}/student-portal`;
+  const lecturerPortalHref = isStaticPreview ? "./student.html?portal=lecturer" : `${portalOrigin}/lecturer-portal`;
   // 1. LOAD HEADER & NAVBAR WITH PREMIUM MICRO-INTERACTIONS
   const siteHeader = `
     <header id="siteHeader" class="sticky top-0 z-50">
@@ -70,8 +73,8 @@ function loadSharedComponents() {
                 Portal <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="absolute right-0 mt-1 w-64 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
-                <a href="${portalOrigin}/student-portal" class="block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Student Portal SKY</a>
-                <a href="${portalOrigin}/lecturer-portal" class="mt-1 block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Lecturer Portal</a>
+                <a href="${studentPortalHref}" class="block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Student Portal SKY</a>
+                <a href="${lecturerPortalHref}" class="mt-1 block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Lecturer Portal</a>
               </div>
             </div>
           </div>
