@@ -1,0 +1,14 @@
+{
+  "name": "micostskills-frontend",
+  "version": "1.0.0",
+  "description": "MiCoSTSkills static frontend assets",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tailwindcss -c ./tailwind.config.js -i ./src/styles/input.css -o ./public/dist/output.css",
+    "watch": "tailwindcss -c ./tailwind.config.js -i ./src/styles/input.css -o ./public/dist/output.css --watch",
+    "check": "node --check public/assets/js/shared-components.js && node --check public/assets/js/elearning-script.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}
