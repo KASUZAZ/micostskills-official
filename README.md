@@ -16,6 +16,7 @@ On Windows you can also double-click `start-micost.bat`, then open:
 
 - `http://localhost:3000/student-portal`
 - `http://localhost:3000/lecturer-portal`
+- `http://localhost:3000/admin-portal`
 
 Do not open `frontend/public/student.html` directly with `file://` for daily use because the portal needs the local Express API.
 
@@ -24,6 +25,8 @@ Do not open `frontend/public/student.html` directly with `file://` for daily use
 - Admin: `admin@micostskills.local` / `admin123`
 - Student: `student@micostskills.local` / `student123`
 - Lecturer: `lecturer@micostskills.local` / `lecturer123`
+
+Admin login is separated from the student and lecturer login screens. Use `/admin-portal` for admin access.
 
 ## Project Structure
 

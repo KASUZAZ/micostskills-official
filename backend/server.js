@@ -865,6 +865,10 @@ app.get("/lecturer-portal", (_req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, "student.html"));
 });
 
+app.get("/admin-portal", (_req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "student.html"));
+});
+
 app.get("/", (_req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, "index.html"));
 });

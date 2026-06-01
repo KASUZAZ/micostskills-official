@@ -7,6 +7,7 @@ function loadSharedComponents() {
   const isStaticPreview = window.location.protocol === "file:" || window.location.hostname.endsWith("github.io");
   const studentPortalHref = isStaticPreview ? "./student.html" : `${portalOrigin}/student-portal`;
   const lecturerPortalHref = isStaticPreview ? "./student.html?portal=lecturer" : `${portalOrigin}/lecturer-portal`;
+  const adminPortalHref = isStaticPreview ? "./student.html?portal=admin" : `${portalOrigin}/admin-portal`;
   // 1. LOAD HEADER & NAVBAR WITH PREMIUM MICRO-INTERACTIONS
   const siteHeader = `
     <header id="siteHeader" class="sticky top-0 z-50">
@@ -75,6 +76,7 @@ function loadSharedComponents() {
               <div class="absolute right-0 mt-1 w-64 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
                 <a href="${studentPortalHref}" class="block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Student Portal SKY</a>
                 <a href="${lecturerPortalHref}" class="mt-1 block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Lecturer Portal</a>
+                <a href="${adminPortalHref}" class="mt-1 block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-red-700 hover:bg-red-50 transition">Admin Portal</a>
               </div>
             </div>
           </div>
