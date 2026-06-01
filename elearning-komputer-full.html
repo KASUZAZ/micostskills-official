@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Learning Sistem Komputer - MiCoSTSkills</title>
+    <link rel="stylesheet" href="./dist/output.css" />
+    <link rel="stylesheet" href="./assets/css/elearning-style.css" />
+    <link rel="icon" href="./resources/MiCoST-Logo-Vector.svg-.png" type="image/png" />
+  </head>
+  <body class="elearning-body" data-course="komputer">
+    <main class="course-shell">
+      <div class="course-topline"></div>
+      <header class="course-header">
+        <div class="course-brand">
+          <img src="./resources/logo-micostskills.png" alt="MiCoSTSkills" />
+          <div class="course-brand-title">
+            <strong>E-Learning</strong>
+            <span>Sistem Komputer</span>
+          </div>
+        </div>
+        <form id="courseLoginForm" class="login-bar">
+          <input id="courseEmail" class="login-field" type="email" placeholder="Username / Email" required />
+          <input id="coursePassword" class="login-field" type="password" placeholder="Password" required />
+          <button class="login-btn" type="submit" title="Login Student Portal" aria-label="Login Student Portal">›</button>
+          <a class="forgotten" href="./student-portal">Forgotten password</a>
+          <p id="courseLoginStatus" class="status-note"></p>
+        </form>
+        <div id="courseUserChip" class="user-chip"></div>
+      </header>
+
+      <nav class="course-nav">
+        <a class="active" href="./elearning.html">Home</a>
+        <button data-scroll-target="#about">About Us</button>
+        <button data-scroll-target="#materials">Courses</button>
+        <button data-scroll-target="#exam">Final Exam</button>
+        <button data-scroll-target="#certificate">E-Certificate</button>
+      </nav>
+
+      <section class="course-hero" style="--hero-image: url('./resources/faculty of IT and multimedia/program1.jpg')">
+        <div class="course-hero-content">
+          <p class="el-kicker">IT-020-3:2013 / IT-020-4:2013</p>
+          <h1>Sistem Komputer TVET</h1>
+          <p>
+            Pembelajaran berstruktur untuk computer setup, maintenance, repair, server installation,
+            networking, mobile device setup dan computer system security.
+          </p>
+        </div>
+      </section>
+
+      <section id="about" class="content-band">
+        <div class="intro-grid">
+          <div>
+            <h2 class="section-title">Welcome to MiCoSTSkills e-Learning Portal.</h2>
+            <div class="section-rule"></div>
+            <p class="intro-copy">
+              Kursus ini fokus kepada kemahiran TVET Sistem Komputer berdasarkan kod IT.
+              Pelajar boleh membaca nota, membuat tugasan amali, menjawab final exam 60 soalan objektif,
+              dan menerima e-certificate selepas peperiksaan dihantar.
+            </p>
+          </div>
+          <div class="video-panel">
+            <div>
+              <strong>Best Online Learning Experience</strong>
+              <p>MiCoSTSkills Sistem Komputer</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="materials" class="content-band" style="background:#f7fafc">
+        <h2 class="section-title">Site Materials</h2>
+        <div class="section-rule"></div>
+        <div class="resource-toolbar">
+          <input id="resourceSearch" type="text" placeholder="Cari bahan: setup, maintenance, repair, server, network, security..." />
+          <div class="filter-pills">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="note">Nota</button>
+            <button class="filter-btn" data-filter="video">Video</button>
+            <button class="filter-btn" data-filter="task">Tugasan</button>
+            <button class="filter-btn" data-filter="quiz">Quiz</button>
+          </div>
+        </div>
+        <div class="resource-grid">
+          <article class="resource-card" data-category="note"><div class="resource-icon">01</div><h3>Computer System Setup</h3><p>Komponen komputer, BIOS/UEFI, OS installation dan driver asas.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">IT-020-3-C01</span></div><a class="open-btn" href="#exam">Buka bahan</a></article>
+          <article class="resource-card" data-category="task"><div class="resource-icon">02</div><h3>Computer System Maintenance</h3><p>Preventive maintenance, cleaning, update, backup dan checklist servis.</p><div class="tag-row"><span class="tag">Tugasan</span><span class="tag">Amali</span></div><a class="open-btn" href="#exam">Mula tugasan</a></article>
+          <article class="resource-card" data-category="video"><div class="resource-icon">03</div><h3>Computer System Repair</h3><p>Troubleshooting hardware, software, boot failure dan basic diagnostic flow.</p><div class="tag-row"><span class="tag">Video</span><span class="tag">Repair</span></div><a class="open-btn" href="#exam">Tonton</a></article>
+          <article class="resource-card" data-category="note"><div class="resource-icon">04</div><h3>Server Installation</h3><p>Asas server role, storage, user account, permission dan network service.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Server</span></div><a class="open-btn" href="#exam">Baca nota</a></article>
+          <article class="resource-card" data-category="task"><div class="resource-icon">05</div><h3>Network Connectivity Setup</h3><p>IP address, subnet, gateway, DNS, switch, router dan ujian sambungan.</p><div class="tag-row"><span class="tag">Tugasan</span><span class="tag">Network</span></div><a class="open-btn" href="#exam">Mula amali</a></article>
+          <article class="resource-card" data-category="quiz"><div class="resource-icon">06</div><h3>Security Setup</h3><p>Antivirus, firewall, password policy, backup dan kawalan akses sistem.</p><div class="tag-row"><span class="tag">Quiz</span><span class="tag">Security</span></div><a class="open-btn" href="#exam">Jawab quiz</a></article>
+        </div>
+      </section>
+
+      <section class="content-band">
+        <h2 class="section-title">Learning Progress</h2>
+        <div class="section-rule"></div>
+        <div class="module-list">
+          <div class="module-item"><div class="module-number">01</div><div><h3>Setup dan Operating System</h3><p>Hardware, OS, driver dan akaun pengguna.</p></div><div><div class="progress-text"><span>Progress</span><span>80%</span></div><div class="progress-bar"><div class="progress-fill" style="--progress:80%"></div></div></div></div>
+          <div class="module-item"><div class="module-number">02</div><div><h3>Maintenance dan Repair</h3><p>Preventive maintenance dan troubleshooting.</p></div><div><div class="progress-text"><span>Progress</span><span>65%</span></div><div class="progress-bar"><div class="progress-fill" style="--progress:65%"></div></div></div></div>
+          <div class="module-item"><div class="module-number">03</div><div><h3>Network dan Security</h3><p>Konfigurasi rangkaian dan keselamatan sistem.</p></div><div><div class="progress-text"><span>Progress</span><span>50%</span></div><div class="progress-bar"><div class="progress-fill" style="--progress:50%"></div></div></div></div>
+        </div>
+      </section>
+
+      <section id="exam" class="content-band" style="background:#f7fafc">
+        <h2 class="section-title">Final Exam - 60 Soalan Objektif</h2>
+        <div class="section-rule"></div>
+        <div class="exam-layout">
+          <article class="exam-card">
+            <h3>Final Exam Sistem Komputer</h3>
+            <p class="intro-copy" style="font-size:18px">Jawab semua soalan. Markah tertinggi akan masuk ranking Top 1.</p>
+            <div class="exam-meta"><div><strong>Soalan</strong><br />60</div><div><strong>Dijawab</strong><br /><span id="answeredCount">0/60</span></div><div><strong>Lulus</strong><br />60%</div></div>
+            <div id="finalExamQuestions"></div>
+            <div class="exam-actions">
+              <button id="submitFinalExam" class="primary-btn" type="button">Hantar Final Exam</button>
+              <span id="examStatus" class="status-note"></span>
+            </div>
+          </article>
+          <aside class="leader-card">
+            <h3>Ranking Top 1</h3>
+            <div id="leaderboardTop"><p class="status-note">Login untuk lihat ranking semasa.</p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="certificate" class="content-band">
+        <h2 class="section-title">E-Certificate</h2>
+        <div class="section-rule"></div>
+        <div id="certificateCard" class="certificate-card"></div>
+      </section>
+
+      <footer class="course-footer">
+        <div><h3>Calendar</h3><p>Final exam boleh dijawab selepas semua modul selesai.</p></div>
+        <div><h3>About E-Learning</h3><p>Fokus TVET MiCoSTSkills untuk Sistem Komputer dan Pemasangan Elektrik.</p></div>
+        <div><h3>MiCoSTSkills</h3><p>Lot 925, Blok C, Wisma Yayasan Melaka, Jalan Hang Tuah, 75300 Melaka.</p></div>
+      </footer>
+    </main>
+    <script src="./assets/js/elearning-script.js"></script>
+  </body>
+</html>

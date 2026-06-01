@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Organisation Chart - MiCoST</title>
+
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="./dist/output.css" />
+    <link
+      rel="icon"
+      href="./resources/MiCoST-Logo-Vector.svg-.png"
+      type="image/png"
+      sizes="16x16"
+    />
+
+    <style>
+      .org-chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      /* Member Card - Default (White Background) */
+      .member-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 2rem 1.5rem;
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        min-width: 250px;
+        color: #1e293b;
+        border: 1px solid #e2e8f0;
+      }
+
+      /* CEO Card - Dark Background */
+      .ceo-card {
+        background: #1e293b;
+        color: white;
+        border: none;
+      }
+
+      .ceo-card .member-name,
+      .ceo-card .member-role {
+        color: white;
+      }
+
+      .ceo-card .member-role {
+        color: #cbd5e1;
+      }
+
+      .member-img {
+        width: 140px;
+        height: 140px;
+        border-radius: 0.75rem;
+        object-fit: contain;
+        border: 4px solid white;
+        background-color: #f8fafc;
+      }
+
+      .ceo-card .member-img {
+        border: 4px solid white;
+      }
+
+      .member-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #1e293b;
+        margin: 0;
+      }
+
+      .member-role {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0;
+      }
+
+      /* Connector Line */
+      .connector-line {
+        width: 3px;
+        height: 2.5rem;
+        background-color: #94a3b8;
+      }
+
+      /* Level 2 - Middle Manager */
+      .level-2-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      /* Level 3 - Departments */
+      .departments-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        width: 100%;
+        max-width: 1000px;
+        position: relative;
+      }
+
+      .departments-container::before {
+        content: "";
+        position: absolute;
+        top: -2rem;
+        left: 25%;
+        right: 25%;
+        height: 3px;
+        background-color: #94a3b8;
+      }
+
+      .departments-container::after {
+        content: "";
+        position: absolute;
+        top: -2rem;
+        left: 25%;
+        width: 3px;
+        height: 2rem;
+        background-color: #94a3b8;
+      }
+
+      /* Department Section */
+      .department {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .department-label {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: white;
+      }
+
+      .department.computer .department-label {
+        background-color: #7c3aed;
+      }
+
+      .department.electrical .department-label {
+        background-color: #06b6d4;
+      }
+
+      /* Department Head */
+      .dept-head {
+        position: relative;
+      }
+
+      .dept-head::before {
+        content: "";
+        position: absolute;
+        top: -2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3px;
+        height: 2rem;
+        background-color: #94a3b8;
+      }
+
+      /* Staff Grid */
+      .staff-grid {
+        display: grid;
+        gap: 1.5rem;
+        width: 100%;
+      }
+
+      .staff-grid.computer {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .staff-grid.electrical {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .staff-card {
+        position: relative;
+        padding-top: 2rem;
+      }
+
+      .staff-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3px;
+        height: 2rem;
+        background-color: #94a3b8;
+      }
+
+      .staff-card .member-card {
+        min-width: 220px;
+        padding: 1.5rem 1rem;
+      }
+
+      .staff-card .member-img {
+        width: 140px;
+        height: 140px;
+      }
+
+      .level-2-container .member-card .member-img {
+        width: 140px;
+        height: 140px;
+      }
+
+      .dept-head .member-img {
+        width: 140px;
+        height: 140px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-white text-slate-800">
+    <!-- Main Content -->
+    <main class="mx-auto w-full max-w-7xl px-4 py-10 pb-20">
+      <h1 class="text-center text-3xl font-bold mb-2">Organisation Chart</h1>
+      <p class="text-center text-slate-600 mb-12">
+        MiCoSTskills Management Structure
+      </p>
+
+      <!-- Organization Chart -->
+      <div class="org-chart">
+        <!-- Level 1: CEO -->
+        <div class="member-card ceo-card">
+          <img
+            src="./resources/ceo.jpg"
+            alt="CEO"
+            class="member-img"
+            onerror="this.style.display = 'none'"
+          />
+          <h3 class="member-name">YB Senator Datuk Hj. Mustafa Bin Musa</h3>
+          <p class="member-role">Chief Executive Officer</p>
+        </div>
+
+        <!-- Connector -->
+        <div class="connector-line"></div>
+
+        <!-- Level 2: Middle Manager -->
+        <div class="level-2-container">
+          <div class="member-card">
+            <img
+              src="./resources/d8.jpg"
+              alt="Manager"
+              class="member-img"
+              onerror="this.style.display = 'none'"
+            />
+            <h3 class="member-name">Mohd Fuad Bin Sadali</h3>
+            <p class="member-role">Training Centre Manager</p>
+          </div>
+        </div>
+
+        <!-- Connector -->
+        <div class="connector-line"></div>
+
+        <!-- Level 3: Departments -->
+        <div class="departments-container">
+          <!-- Computer Department -->
+          <div class="department computer">
+            <div class="department-label">Computer</div>
+
+            <div class="dept-head member-card">
+              <img
+                src="./resources/New person/izzah.png"
+                alt="Dept Head"
+                class="member-img"
+                onerror="this.style.display = 'none'"
+              />
+              <h3 class="member-name">Izah Binti Md Jedi</h3>
+              <p class="member-role">Internal Auditor</p>
+            </div>
+
+            <div class="staff-grid computer">
+              <div class="staff-card">
+                <div class="member-card">
+                  <img
+                    src="./resources/New person/mohammad Amy.png"
+                    alt="Staff"
+                    class="member-img"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <h3 class="member-name">Mohammad Amy Bin Md Ali</h3>
+                  <p class="member-role">Assessor Officer</p>
+                </div>
+              </div>
+
+              <div class="staff-card">
+                <div class="member-card">
+                  <img
+                    src="./resources/New person/muhammad nazhan.png"
+                    alt="Staff"
+                    class="member-img"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <h3 class="member-name">
+                    Muhammad Nazhan Akmal Bin Dzulkifli
+                  </h3>
+                  <p class="member-role">Assessor Officer</p>
+                </div>
+              </div>
+
+              <div class="staff-card">
+                <div class="member-card">
+                  <img
+                    src="./resources/New person/sarjudin.png"
+                    alt="Staff"
+                    class="member-img"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <h3 class="member-name">Sarjudin Bin Zaini Yee</h3>
+                  <p class="member-role">Assessor Officer</p>
+                </div>
+              </div>
+
+              <div class="staff-card">
+                <div class="member-card">
+                  <img
+                    src="./resources/New person/muhd akmal.png"
+                    alt="Staff"
+                    class="member-img"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <h3 class="member-name">Muhd Akmal Bin Alias</h3>
+                  <p class="member-role">Assessor Officer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Electrical Department -->
+          <div class="department electrical">
+            <div class="department-label">Electrical</div>
+
+            <div class="dept-head member-card">
+              <img
+                src="./resources/New person/Hj Sazali.png"
+                alt="Dept Head"
+                class="member-img"
+                onerror="this.style.display = 'none'"
+              />
+              <h3 class="member-name">Hj Sazali Bin Ahmad</h3>
+              <p class="member-role">Internal Auditor</p>
+            </div>
+
+            <div class="staff-grid electrical">
+              <div class="staff-card">
+                <div class="member-card">
+                  <img
+                    src="./resources/New person/adnan.png"
+                    alt="Staff"
+                    class="member-img"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <h3 class="member-name">Adnan Bin Atan</h3>
+                  <p class="member-role">Assessor Officer</p>
+                </div>
+              </div>
+
+              <div class="staff-card">
+                <div class="member-card">
+                  <img
+                    src="./resources/New person/Mad Nasir.png"
+                    alt="Staff"
+                    class="member-img"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <h3 class="member-name">Mad Nasir Bin Mad Nor</h3>
+                  <p class="member-role">Assessor Officer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Shared Components (Header, Navbar, Footer) -->
+    <script src="./assets/js/shared-components.js?v=chat-force-black-1"></script>
+  </body>
+</html>

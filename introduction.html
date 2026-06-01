@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Introduction - MiCoST</title>
+
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="./dist/output.css" />
+    <style>
+      .page-intro-anim {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: pageIntroFade 0.9s ease-out forwards;
+      }
+      @keyframes pageIntroFade {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .intro-highlight {
+        display: inline-block;
+        animation: glowPulse 3s ease-in-out infinite alternate;
+      }
+      @keyframes glowPulse {
+        from {
+          text-shadow: 0 0 0 rgba(99, 102, 241, 0.4);
+        }
+        to {
+          text-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+        }
+      }
+    </style>
+    <link
+      rel="icon"
+      href="./resources/MiCoST-Logo-Vector.svg-.png"
+      type="image/png"
+      sizes="16x16"
+    />
+  </head>
+
+  <body class="bg-white text-slate-800">
+    <!-- Header, navbar, and footer injected by shared-components.js -->
+
+    <!-- Main Content -->
+    <main class="mx-auto w-full max-w-4xl px-4 py-16">
+      <!-- Page Title -->
+      <div class="mb-12 border-b-2 border-slate-200 pb-8 page-intro-anim">
+        <h1 class="text-4xl font-bold text-slate-900 mb-2">Introduction</h1>
+        <p class="text-lg text-slate-600">Learn more about MiCoST</p>
+      </div>
+
+      <!-- Content Sections -->
+      <div class="space-y-8 text-slate-700 leading-relaxed">
+        <!-- General Information -->
+        <section class="intro-section">
+          <h2 class="text-2xl font-semibold text-slate-900 mb-4">
+            General Information
+          </h2>
+          <p class="mb-4">
+            Melaka International College of Science and Technology, <span class="intro-highlight font-semibold text-indigo-700">MiCoST</span>
+            merupakan satu Institusi Pendidikan milik penuh Kerajaan Negeri
+            Melaka dibawah Yayasan Melaka. Beroperasi selama hampir dua dekad,
+            MiCoST masih lagi berdiri teguh dan menjadi kebanggan kita. Semenjak
+            2006, MiCoST telah berkembang maju dari segi akademik dan membina
+            reputasi sebagai satu institusi pendidikan unggul milik kerajaan
+            negeri Melaka. Malah, MiCoST turut menjadi salah satu institusi
+            pendidikan yang menjalankan kerjasama penuh bersama Universiti
+            Teknologi Mara (UiTM) dan juga menjadi rakan kolaborasi universiti
+            terkemuka yang lain seperti University of Cyberjaya (UoC), Manipal
+            University, Asia University dan UTMSpace.
+          </p>
+        </section>
+
+        <!-- Programs -->
+        <section class="intro-section">
+          <h2 class="text-2xl font-semibold text-slate-900 mb-4">
+            Programs Offered
+          </h2>
+          <p class="mb-4">
+            Menawarkan 15 program Diploma dan 2 program Pra-Diploma dibawah tiga
+            fakulti seperti Fakulti Pengurusan dan Perniagaan, Fakulti Sains
+            Kesihatan dan Fakulti Teknologi Maklumat dan Multimedia. Tidak
+            dilupakan kursus-kursus kemahiran seperti Sijil Operasi Sistem
+            Komputer (Sijil Kemahiran Malaysia Tahap 3) dan Pentadbiran Sistem
+            Komputer (Diploma Kemahiran Malaysia Tahap 4). Pelbagai program yang
+            menarik ditawarkan di MiCoST, membuktikan MiCoST mampu untuk
+            bersaing dengan institusi pendidikan yang lain dan berupaya untuk
+            melakar masa depan yang lebih cerah.
+          </p>
+        </section>
+
+        <!-- Quality & Recognition -->
+        <section class="intro-section">
+          <h2 class="text-2xl font-semibold text-slate-900 mb-4">
+            Quality & Recognition
+          </h2>
+          <p class="mb-4">
+            Taraf kualiti pendidikan dan penanda aras kecemerlangan MiCoST dapat
+            dibuktikan melalui beberapa pengiktirafan yang telah diperolehi.
+            MiCoST memiliki sijil Sistem Pengurusan Kualiti ISO 9001:2015 yang
+            menunjukkan keupayaan organisasi untuk memenuhi permintaan pelanggan
+            dalam menyediakan produk dan perkhidmatan yang berkualiti. Selain
+            itu, MiCoST turut memperolehi penarafan MyQuest 2022 dengan
+            keputusan Berdaya Saing ke peringkat yang lebih tinggi. MiCoST
+            diklasifikasikan sebagai kumpulan IPT yang cemerlang dan memenuhi
+            kriteria penilaian dibawah penarafan IPT di Malaysia.
+          </p>
+          <p>
+            MiCoST turut mendapat pengiktirafan Gred A bagi Audit Kualiti
+            Kolej-Kolej Bersekutu UiTM bagi tahun 2022 serta berjaya mencapai
+            kadar kebolehpasaran siswazah sebanyak 81.6% berdasarkan sistem
+            Kajian Pengesanan Graduan oleh KPT. Alhamdulillah, tahniah kepada
+            semua Warga MiCoST.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <!-- Shared Components (Header, Navbar, Footer) -->
+    <script src="./assets/js/shared-components.js?v=chat-force-black-1"></script>
+  </body>
+</html>

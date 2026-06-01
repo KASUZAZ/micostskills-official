@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MiCoSTSkills E-Learning Portal</title>
+    <link rel="stylesheet" href="./dist/output.css" />
+    <link rel="stylesheet" href="./assets/css/elearning-style.css" />
+    <link rel="icon" href="./resources/MiCoST-Logo-Vector.svg-.png" type="image/png" />
+  </head>
+  <body class="elearning-body">
+    <main class="el-cover">
+      <section class="el-hero">
+        <div>
+          <img class="el-logo-mark" src="./resources/logo-micostskills.png" alt="MiCoSTSkills" />
+          <p class="el-kicker">MiCoSTSkills TVET E-Learning</p>
+          <h1 class="el-title">E-Learning Portal</h1>
+          <p class="el-subtitle">
+            Portal pembelajaran digital untuk dua kod TVET utama: Pemasangan Elektrik dan Sistem Komputer.
+            Login pelajar menggunakan data yang sama seperti Student Portal.
+          </p>
+          <a class="el-enter" href="#choose">ENTER / MASUK</a>
+        </div>
+      </section>
+
+      <section id="choose" class="portal-choice">
+        <h2>Please Choose Your Portal</h2>
+        <div class="choice-actions">
+          <a class="choice-card" href="./elearning-elektrik-full.html">Elektrik</a>
+          <a class="choice-card" href="./elearning-komputer-full.html">Sistem Komputer</a>
+        </div>
+      </section>
+
+      <section class="telegram-info">
+        <div class="telegram-inner">
+          <p class="el-kicker">Info Telegram</p>
+          <h2>QR Telegram E-Learning</h2>
+          <p>
+            Scan QR di bawah untuk maklumat rasmi, hebahan, bantuan dan kemas kini e-learning mengikut kursus.
+          </p>
+          <div class="telegram-grid">
+            <article class="telegram-card">
+              <div class="qr-frame">
+                <img
+                  src="telegram-pemasanganelektrik.jpeg"
+                  alt="QR Telegram E-Learning Elektrik"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+                />
+                <div class="qr-placeholder">QR Elektrik</div>
+              </div>
+              <h3>E-Learning Elektrik</h3>
+              <span>Telegram info untuk kursus Pemasangan Elektrik.</span>
+            </article>
+
+            <article class="telegram-card">
+              <div class="qr-frame">
+                <img
+                  src="telegram-systemkomputer.jpeg"
+                  alt="QR Telegram E-Learning Sistem Komputer"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+                />
+                <div class="qr-placeholder">QR Komputer</div>
+              </div>
+              <h3>E-Learning Sistem Komputer</h3>
+              <span>Telegram info untuk kursus Sistem Komputer.</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer class="portal-footer">
+        <div class="social-strip">
+          <span>Telegram</span>
+          <span>Facebook</span>
+          <span>YouTube</span>
+          <span>Instagram</span>
+          <span>LinkedIn</span>
+        </div>
+        <p style="margin-top: 34px; font-size: 24px; font-weight: 800;">© 2026 MiCoSTSkills Digital Learning</p>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MiCoSTSkills KASUZAZ</title>
+
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="./dist/output.css" />
+    <link
+      rel="icon"
+      href="./resources/MiCoST-Logo-Vector.svg-.png"
+      type="image/png"
+      sizes="16x16"
+    />
+  </head>
+
+  <body class="bg-white text-slate-800">
+    <!-- Header, navbar, and footer injected by shared-components.js -->
+
+    <!-- Banner / Hero -->
+    <section class="hero">
+      <div class="hero-image-container">
+        <img
+          src="./resources/banner.png"
+          alt="Banner MiCoSTSkills"
+          class="hero-image hero-slide active"
+          onerror="this.style.display = 'none'"
+        />
+        <img
+          src="./design-slider-website-peluang-bina-masa-depan-01.png"
+          alt="Peluang membina masa depan bersama MiCoST"
+          class="hero-image hero-slide"
+          onerror="this.style.display = 'none'"
+        />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-content-wrapper">
+          <h1 class="hero-title">MiCoSTSkills</h1>
+          <p class="hero-subtitle">
+            Training & skills-based learning hub (TVET).
+          </p>
+          <div class="hero-dots" aria-label="Banner controls">
+            <button
+              class="hero-dot active"
+              type="button"
+              aria-label="Show banner 1"
+              data-hero-slide="0"
+            ></button>
+            <button
+              class="hero-dot"
+              type="button"
+              aria-label="Show banner 2"
+              data-hero-slide="1"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content -->
+    <main>
+      <!-- Intro -->
+      <section class="intro-section">
+        <div class="intro-content">
+          <h2 class="section-title">Pengenalan</h2>
+          <p class="intro-text">
+            Pusat Latihan dan Kemahiran MiCoSTSkills telah ditauliahkan oleh JPK
+            pada 27 Ogos 2020. <br />
+            Premisnya terletak di Lot 925, Blok C, Wisma Yayasan Melaka, Jalan
+            Hang Tuah, 75300 Melaka. <br />
+            Tempoh pentauliahan (pembaharuan) dari 1 September 2023 hingga 31
+            Ogos 2026, selama tiga tahun. <br />
+          </p>
+        </div>
+
+        <aside class="info-box">
+          <h3 class="info-title">Quick Info</h3>
+          <ul class="info-list">
+            <li>
+              <span class="info-item">Accreditation:</span> Jabatan Pembangunan
+              Kemahiran (JPK)
+            </li>
+            <li><span class="info-item">Intake:</span> Jan & Jun</li>
+            <li><span class="info-item">Location:</span> Melaka</li>
+          </ul>
+        </aside>
+      </section>
+
+      <!-- Vision / Mission -->
+      <section class="cta-section">
+        <h2 class="section-title">Visi &amp; Misi</h2>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-label">VISI</div>
+            <p class="card-text">
+              Menjadi pusat kecemerlangan dalam latihan dan pengembangan
+              pembelajaran berasaskan kemahiran.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-label">MISI</div>
+            <p class="card-text">
+              Menjadi institusi TVET terkemuka yang melahirkan tenaga kerja
+              berkemahiran tinggi, berdaya saing dan berjiwa keusahawanan untuk
+              memenuhi keperluan industri.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Org Chart link -->
+      <section class="cta-section">
+        <div class="cta-container">
+          <div class="cta-text">
+            <h3>Carta Organisasi</h3>
+            <p>View the organisational structure of MiCoST.</p>
+          </div>
+          <a href="./org-chart.html" class="cta-btn">Open Carta Organisasi →</a>
+        </div>
+      </section>
+
+      <!-- Programs -->
+      <section id="programs" class="programs-section">
+        <h2 class="section-title">Senarai Program</h2>
+        <div class="program-grid">
+          <a href="./program-catalogue.html" class="program-card">
+            <div class="program-title">Elektrik ⚡</div>
+            <ul class="program-list">
+              <li>F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik</li>
+              <li>F432-005-3:2019 Pemasangan dan Penyelenggaraan Elektrik</li>
+            </ul>
+            <div class="program-arrow">more info →</div>
+          </a>
+
+          <a href="./program-catalogue.html" class="program-card">
+            <div class="program-title">Komputer 💻</div>
+            <ul class="program-list">
+              <li>IT-020-3:2013 Operasi Sistem Komputer</li>
+              <li>IT-020-4:2013 Pentadbiran Sistem Komputer</li>
+            </ul>
+            <div class="program-arrow">more info →</div>
+          </a>
+        </div>
+      </section>
+      <!-- E-Learning -->
+      <section class="programs-section">
+        <h2 class="section-title">E-Learning</h2>
+        <div class="program-grid">
+          <!-- Elektrik E-Learning -->
+          <a href="./elearning.html" class="program-card">
+            <div class="program-title">E-Learning Elektrik ⚡</div>
+            <ul class="program-list">
+              <li>Nota Digital Pemasangan Elektrik</li>
+              <li>Video Tutorial Wiring & Safety</li>
+              <li>Latihan Interaktif & Quiz</li>
+            </ul>
+            <div class="program-arrow">access learning →</div>
+          </a>
+
+          <!-- Komputer E-Learning -->
+          <a href="./elearning.html" class="program-card">
+            <div class="program-title">E-Learning Komputer 💻</div>
+            <ul class="program-list">
+              <li>Nota Sistem Komputer</li>
+              <li>Video OS & Networking</li>
+              <li>Latihan Praktikal & Assessment</li>
+            </ul>
+            <div class="program-arrow">access learning →</div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Gallery -->
+      <section class="gallery-section">
+        <div class="gallery-header">
+          <h2 class="section-title">Gallery</h2>
+        </div>
+
+        <div class="carousel-container">
+          <div class="carousel-wrapper">
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/extra%20gallery/extra%203.jpeg&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/gallery/2024-07-23%20(1).webp&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/gallery/2024-07-23.webp&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/extra%20gallery/extra%204.jpeg&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide active">
+              <div
+                class="gallery-card gallery-card-center bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/gallery/LY9A7054.webp&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/gallery/2025-02-10.webp&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/gallery/LY9A7060.webp&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/gallery/vlcsnap-2022-04-13-10h30m11s774.webp&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/extra%20gallery/extra%201.jpeg&quot;);
+                "
+              ></div>
+            </div>
+            <div class="carousel-slide">
+              <div
+                class="gallery-card bg-cover bg-center"
+                style="
+                  background-image: url(&quot;./resources/extra%20gallery/extra%202.jpeg&quot;);
+                "
+              ></div>
+            </div>
+          </div>
+
+          <div class="carousel-controls">
+            <button
+              class="carousel-btn prev"
+              id="galleryPrev"
+              aria-label="Previous"
+            >
+              ‹
+            </button>
+            <button
+              class="carousel-btn next"
+              id="galleryNext"
+              aria-label="Next"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Hero banner slider
+      const heroSlides = document.querySelectorAll(".hero-slide");
+      const heroDots = document.querySelectorAll(".hero-dot");
+      let heroIndex = 0;
+      let heroTimer;
+
+      function showHeroSlide(nextIndex) {
+        heroIndex = nextIndex;
+        heroSlides.forEach((slide, index) => {
+          slide.classList.toggle("active", index === heroIndex);
+        });
+        heroDots.forEach((dot, index) => {
+          dot.classList.toggle("active", index === heroIndex);
+        });
+      }
+
+      function startHeroSlider() {
+        window.clearInterval(heroTimer);
+        heroTimer = window.setInterval(() => {
+          showHeroSlide((heroIndex + 1) % heroSlides.length);
+        }, 5000);
+      }
+
+      heroDots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          showHeroSlide(Number(dot.dataset.heroSlide));
+          startHeroSlider();
+        });
+      });
+
+      if (heroSlides.length > 1) {
+        startHeroSlider();
+      }
+
+      // Gallery carousel
+      const carousel = document.querySelector(".carousel-wrapper");
+      const slides = document.querySelectorAll(".carousel-slide");
+      const prevBtn = document.getElementById("galleryPrev");
+      const nextBtn = document.getElementById("galleryNext");
+      let currentIndex = 4;
+
+      function updateCarousel() {
+        slides.forEach((slide, index) => {
+          slide.classList.remove("active");
+          const offset = index - currentIndex;
+
+          if (offset === -2) {
+            slide.style.transform =
+              "translateX(-300px) scale(0.7) rotateY(40deg)";
+            slide.style.opacity = "0.5";
+            slide.style.zIndex = "0";
+          } else if (offset === -1) {
+            slide.style.transform =
+              "translateX(-150px) scale(0.82) rotateY(22deg)";
+            slide.style.opacity = "0.5";
+            slide.style.zIndex = "2";
+          } else if (offset === 0) {
+            slide.classList.add("active");
+            slide.style.transform = "translateX(0) scale(1) rotateY(0deg)";
+            slide.style.opacity = "1";
+            slide.style.zIndex = "10";
+          } else if (offset === 1) {
+            slide.style.transform =
+              "translateX(150px) scale(0.82) rotateY(-22deg)";
+            slide.style.opacity = "0.5";
+            slide.style.zIndex = "2";
+          } else if (offset === 2) {
+            slide.style.transform =
+              "translateX(300px) scale(0.7) rotateY(-40deg)";
+            slide.style.opacity = "0.5";
+            slide.style.zIndex = "0";
+          } else {
+            slide.style.opacity = "0";
+            slide.style.zIndex = "0";
+          }
+        });
+      }
+
+      prevBtn?.addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        updateCarousel();
+      });
+
+      nextBtn?.addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateCarousel();
+      });
+
+      updateCarousel();
+    </script>
+
+    <!-- Shared Components (Header, Navbar, Footer) -->
+    <script src="./assets/js/shared-components.js?v=chat-force-black-1"></script>
+  </body>
+</html>

@@ -1,0 +1,1446 @@
+﻿<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiCoSTSkills Enterprise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom Animasi untuk Elemen */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    .animate-fade {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-slide {
+      animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Hover Effects Dinamik */
+    .menu-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-btn.active {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-weight: 600;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .data-card {
+      transition: all 0.3s ease;
+    }
+
+    .data-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans">
+  <div id="app"></div>
+
+  <script>
+    // ==========================================
+    // CONFIGURATION & CONNECTIVITY TO BACKEND SQL
+    // ==========================================
+
+    const LOCAL_API_ORIGIN = "http://localhost:3000";
+    const IS_STATIC_PREVIEW = window.location.protocol === "file:" || ["5500", "5501", "5502"].includes(window.location.port);
+    const API = IS_STATIC_PREVIEW ? LOCAL_API_ORIGIN : window.location.origin;
+    let token = localStorage.getItem("token");
+    let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+    let currentActiveMenu = "dashboard";
+    const LOGO = "./resources/logo-micostskills.png";
+    const PORTAL_MODE = window.location.pathname === "/lecturer-portal" || new URLSearchParams(window.location.search).get("portal") === "lecturer"
+      ? "lecturer"
+      : "student";
+    const PROGRAM_OPTIONS = [
+      "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+      "F432-005-3:2019 Pemasangan dan Penyelenggaraan Elektrik",
+      "IT-020-3:2013 Operasi Sistem Komputer",
+      "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    ];
+    const REQUIRED_WIFI = "@MiCoSTHotspotD_2n3";
+    const STUDENT_PROFILE_FIELDS = [
+      ["ic", "No Kad Pengenalan"],
+      ["birthDate", "Tarikh Lahir"],
+      ["address", "Alamat"],
+      ["phone", "No Telefon (HP)"],
+      ["nationality", "Warganegara"],
+      ["race", "Keturunan"],
+      ["gender", "Jantina"],
+      ["okuStatus", "Status OKU"],
+      ["religion", "Agama"],
+      ["maritalStatus", "Status Perkahwinan"],
+      ["parliament", "Kawasan Parlimen"],
+      ["dun", "Kawasan DUN"],
+      ["fatherName", "Nama Bapa / Penjaga"],
+      ["fatherPhone", "No Telefon Bapa / Penjaga"],
+      ["motherName", "Nama Ibu"],
+      ["motherPhone", "No Telefon Ibu"],
+      ["spmYear", "SPM Tahun"],
+      ["spmNumber", "Angka Giliran"],
+    ];
+    const PROGRAM_UNITS = {
+      "F432-005-2:2019": [
+        ["F432-005-2:2019-C01", "Single Phase Drawing"],
+        ["F432-005-2:2019-C02", "Single Phase Wiring Installation"],
+        ["F432-005-2:2019-C03", "Single Phase Wiring Testing and Commissioning"],
+        ["F432-005-2:2019-C04", "Single Phase Electrical Apparatus Maintenance"],
+      ],
+      "F432-005-3:2019": [
+        ["F432-005-3:2019-C01", "Three Phase Drawing"],
+        ["F432-005-3:2019-C02", "Three Phase Wiring Installation"],
+        ["F432-005-3:2019-C03", "Three Phase Wiring Testing and Commissioning"],
+        ["F432-005-3:2019-C04", "Three Phase Electrical Apparatus Maintenance"],
+        ["F432-005-3:2019-C05", "Three Phase Electrical Supervisor"],
+      ],
+      "IT-020-3:2013": [
+        ["IT-020-3:2013-C01", "Computer System Setup"],
+        ["IT-020-3:2013-C02", "Computer System Maintenance"],
+        ["IT-020-3:2013-C03", "Computer System Repair"],
+        ["IT-020-3:2013-C04", "Server Installation"],
+        ["IT-020-3:2013-C05", "Computer Network Connectivity Setup"],
+        ["IT-020-3:2013-C06", "Mobile Device Setup"],
+        ["IT-020-3:2013-C07", "Computer System Security Setup"],
+      ],
+      "IT-020-4:2013": [
+        ["IT-020-4:2013-C01", "Server Configuration"],
+        ["IT-020-4:2013-C02", "Computer Network Installation Management"],
+        ["IT-020-4:2013-C03", "Computer System Security Control"],
+        ["IT-020-4:2013-C04", "Computer System Maintenance Management"],
+        ["IT-020-4:2013-C05", "Computer System Network Procurement"],
+      ],
+    };
+    const PROGRAM_LABELS = {
+      "F432-005-2:2019": "SKE Tahap 2 - Pemasangan dan Penyelenggaraan Elektrik Satu Fasa",
+      "F432-005-3:2019": "SKE Tahap 3 - Pemasangan dan Penyelenggaraan Elektrik Tiga Fasa",
+      "IT-020-3:2013": "SKM Tahap 3 - Operasi Sistem Komputer",
+      "IT-020-4:2013": "DKM Tahap 4 - Pentadbiran Sistem Komputer",
+    };
+
+    function authHeaders() {
+      return {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+    }
+
+    function backendOfflineMessage() {
+      return IS_STATIC_PREVIEW
+        ? `Backend tidak aktif. Jalankan server dahulu, kemudian buka ${LOCAL_API_ORIGIN}/student-portal.`
+        : "Backend tidak dapat dihubungi. Pastikan server MiCoSTSkills sedang berjalan.";
+    }
+
+    async function api(path, options = {}) {
+      let res;
+      try {
+        res = await fetch(API + path, {
+          ...options,
+          headers: options.headers || authHeaders(),
+        });
+      } catch {
+        throw new Error(backendOfflineMessage());
+      }
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "API Error");
+      return data;
+    }
+
+    // ==========================================
+    // REAL DATABASE AUTHENTICATION (LANGKAH 3)
+    // ==========================================
+
+    async function login() {
+      const emailInput = document.getElementById("email").value.trim();
+      const passwordInput = document.getElementById("password").value;
+      const loginError = document.getElementById("loginError");
+
+      if (loginError) {
+        loginError.textContent = "";
+        loginError.classList.add("hidden");
+      }
+
+      try {
+        let res;
+        try {
+          res = await fetch(`${API}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailInput, password: passwordInput }),
+          });
+        } catch {
+          throw new Error(backendOfflineMessage());
+        }
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.error) throw new Error(data.error || "Gagal berhubung dengan backend.");
+        if (PORTAL_MODE === "lecturer" && data.user.role !== "lecturer" && data.user.role !== "admin") {
+          throw new Error("Akaun ini bukan akaun pensyarah. Sila login melalui Student Portal SKY.");
+        }
+        if (PORTAL_MODE === "student" && data.user.role === "lecturer") {
+          throw new Error("Akaun pensyarah perlu login melalui Lecturer Portal.");
+        }
+
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(currentUser));
+
+        currentActiveMenu = "dashboard";
+        renderDashboard();
+      } catch (e) {
+        if (loginError) {
+          loginError.textContent = e.message;
+          loginError.classList.remove("hidden");
+        } else {
+          alert("❌ Gagal Log Masuk: " + e.message);
+        }
+      }
+    }
+
+    async function register() {
+      const name = document.getElementById("rName").value.trim();
+      const email = document.getElementById("rEmail").value.trim();
+      const password = document.getElementById("rPassword").value;
+      const program = document.getElementById("rProgram").value.trim();
+
+      if (!name || !email || !password || !program) {
+        alert("⚠️ Sila isi semua ruangan pendaftaran.");
+        return;
+      }
+
+      try {
+        let res;
+        try {
+          res = await fetch(`${API}/api/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password, program }),
+          });
+        } catch {
+          throw new Error(backendOfflineMessage());
+        }
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.error) throw new Error(data.error || "Gagal berhubung dengan backend.");
+
+        alert("🎉 " + data.message);
+        document.getElementById("email").value = email;
+        document.getElementById("password").value = password;
+      } catch (e) {
+        alert("❌ Gagal Mendaftar Pelajar: " + e.message);
+      }
+    }
+
+    function renderLogin() {
+      const isDirectStudentPortal = window.location.pathname === "/student-portal";
+      const isLecturerPortal = PORTAL_MODE === "lecturer";
+      const portalTitle = isLecturerPortal ? "Lecturer Portal" : "Student Portal";
+      const portalDescription = isLecturerPortal
+        ? "Masuk untuk mengurus keputusan CU, kehadiran dan maklumat ringkas pelajar."
+        : "Masuk untuk mengurus kehadiran, exam dan sistem pelajar anda.";
+      const emailLabel = isLecturerPortal ? "Emel Pensyarah" : "Emel Pelajar";
+
+      document.getElementById("app").innerHTML = `
+        <main class="min-h-screen bg-slate-50">
+          <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+            <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
+              <div class="flex items-center gap-4">
+                <img src="${LOGO}" alt="Logo MiCoSTSkills" class="h-16 w-16 rounded-2xl bg-white object-contain p-1 shadow-sm" />
+                <div>
+                  <h1 class="text-xl font-black text-slate-900">MiCoSTSkills</h1>
+                  <p class="text-sm text-slate-500">Hub Latihan Kemahiran TVET</p>
+                </div>
+              </div>
+
+              <nav class="hidden items-center gap-7 text-sm font-bold text-slate-700 lg:flex">
+                <a href="#utama" class="hover:text-blue-700">Utama</a>
+                <a href="#pengenalan" class="hover:text-blue-700">Pengenalan</a>
+                <a href="#program" class="hover:text-blue-700">Program</a>
+                <div class="flex items-center gap-2">
+                  <button onclick="goToStudentPortal()" class="rounded-2xl bg-blue-700 px-5 py-3 text-white shadow-sm transition hover:bg-blue-800">Student Portal SKY</button>
+                  <button onclick="goToLecturerPortal()" class="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-slate-800 shadow-sm transition hover:border-blue-700 hover:text-blue-700">Lecturer Portal</button>
+                </div>
+              </nav>
+
+              <button onclick="${isLecturerPortal ? "goToStudentPortal()" : "goToLecturerPortal()"}" class="rounded-2xl bg-blue-700 px-4 py-3 text-sm font-bold text-white shadow-sm lg:hidden">${isLecturerPortal ? "Student" : "Lecturer"} Portal</button>
+            </div>
+          </header>
+
+          ${!isDirectStudentPortal && !isLecturerPortal ? `
+          <section id="utama" class="relative overflow-hidden bg-white">
+            <div class="mx-auto grid min-h-[520px] max-w-7xl gap-8 px-5 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-20">
+              <div class="flex flex-col justify-center">
+                <p class="text-lg uppercase tracking-[0.25em] text-slate-500">Selamat Datang</p>
+                <h2 class="mt-4 max-w-4xl text-5xl font-black leading-tight text-blue-950 lg:text-7xl">Pusat Latihan dan Kemahiran MiCoSTSkills</h2>
+                <p class="mt-5 max-w-2xl text-lg text-slate-600">Training & skills-based learning hub (TVET) untuk program Elektrik dan Komputer.</p>
+                <div class="mt-8 flex flex-wrap gap-3">
+                  <button onclick="goToStudentPortal()" class="rounded-2xl bg-red-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700">Masuk Student Portal</button>
+                  <a href="#program" class="rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-bold text-slate-900 transition hover:border-blue-700 hover:text-blue-700">Lihat Program</a>
+                </div>
+              </div>
+
+              <div class="relative flex items-center">
+                <div class="w-full rounded-[2rem] border border-slate-200 bg-slate-950 p-6 text-white shadow-2xl">
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-3xl bg-white/10 p-5">
+                      <p class="text-4xl">⚡</p>
+                      <h3 class="mt-4 text-xl font-black">Elektrik</h3>
+                      <p class="mt-2 text-sm text-slate-300">Pemasangan dan Penyelenggaraan Elektrik</p>
+                    </div>
+                    <div class="rounded-3xl bg-white/10 p-5">
+                      <p class="text-4xl">💻</p>
+                      <h3 class="mt-4 text-xl font-black">Komputer</h3>
+                      <p class="mt-2 text-sm text-slate-300">Operasi dan Pentadbiran Sistem Komputer</p>
+                    </div>
+                  </div>
+                  <div class="mt-5 rounded-3xl bg-white p-5 text-slate-900">
+                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Akses Pantas</p>
+                    <h3 class="mt-3 text-2xl font-black">Student Portal</h3>
+                    <p class="mt-2 text-slate-600">Login terus untuk urus kehadiran, exam dan sistem pelajar.</p>
+                    <button onclick="goToStudentPortal()" class="mt-5 w-full rounded-2xl bg-blue-700 px-5 py-3 text-sm font-bold text-white">Pergi ke Login</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="program" class="bg-slate-100 px-5 py-14 lg:px-8">
+            <div class="mx-auto max-w-7xl">
+              <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Program</p>
+                  <h2 class="mt-3 text-3xl font-black text-slate-950">Pilihan latihan MiCoSTSkills</h2>
+                </div>
+                <button onclick="goToStudentPortal()" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">Daftar melalui Portal</button>
+              </div>
+
+              <div class="grid gap-6 lg:grid-cols-2">
+                <article class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+                  <p class="text-3xl">⚡</p>
+                  <h3 class="mt-4 text-2xl font-black text-slate-950">Elektrik</h3>
+                  <p class="mt-4 text-slate-600">F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik</p>
+                  <p class="mt-2 text-slate-600">F432-005-3:2019 Pemasangan dan Penyelenggaraan Elektrik</p>
+                </article>
+                <article class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+                  <p class="text-3xl">💻</p>
+                  <h3 class="mt-4 text-2xl font-black text-slate-950">Komputer</h3>
+                  <p class="mt-4 text-slate-600">IT-020-3:2013 Operasi Sistem Komputer</p>
+                  <p class="mt-2 text-slate-600">IT-020-4:2013 Pentadbiran Sistem Komputer</p>
+                </article>
+              </div>
+            </div>
+          </section>
+          ` : ""}
+
+          <section id="student-portal-login" class="bg-[#f5f7fb] px-5 py-12 lg:px-8">
+            <div class="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.10)]">
+              <div class="grid min-h-[720px] lg:grid-cols-[1.15fr_0.85fr]">
+                <div class="relative hidden overflow-hidden bg-slate-100 lg:block">
+                  <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80" alt="Pelajar MiCoSTSkills menggunakan komputer riba" class="h-full w-full object-cover" />
+                  <div class="absolute inset-0 bg-gradient-to-r from-white/40 via-white/10 to-white/80"></div>
+                  <div class="absolute bottom-10 left-10 max-w-xl rounded-3xl bg-white/85 p-6 shadow-xl backdrop-blur">
+                    <p class="text-sm font-bold uppercase tracking-[0.22em] text-blue-700">MiCoSTSkills</p>
+                    <h2 class="mt-3 text-4xl font-black text-slate-950">${portalTitle}</h2>
+                    <p class="mt-3 text-slate-600">${portalDescription}</p>
+                  </div>
+                </div>
+
+                <div class="flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-14">
+                  <div class="mb-10 flex justify-center lg:justify-end">
+                    <div class="flex items-center gap-3">
+                      <img src="${LOGO}" alt="Logo MiCoSTSkills" class="h-16 w-16 rounded-2xl bg-white object-contain p-1 shadow-sm" />
+                      <div>
+                        <p class="text-2xl font-black leading-none text-red-600">MiCoST</p>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-700">Skills Portal</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-center">
+                    <p class="text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Management System</p>
+                    <h2 class="mt-4 text-4xl font-black text-slate-950">${portalTitle}</h2>
+                    <p class="mt-4 text-slate-500">${portalDescription}</p>
+                  </div>
+
+                  <div class="mt-8 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-4 text-sm font-medium text-cyan-900">
+                    <span class="font-black">Backend:</span> ${IS_STATIC_PREVIEW ? `Jalankan server dan buka <a class="underline" href="${LOCAL_API_ORIGIN}/student-portal">${LOCAL_API_ORIGIN}/student-portal</a>.` : "Server aktif melalui laman ini."}
+                  </div>
+
+                  <div class="mt-8 space-y-4">
+                    <div>
+                      <label class="mb-2 block text-sm font-bold text-slate-700">${emailLabel}</label>
+                      <input id="email" type="email" placeholder="contoh@micost.com" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-4 text-slate-900 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                    </div>
+
+                    <p id="loginError" class="hidden text-sm font-bold text-red-600"></p>
+
+                    <div>
+                      <label class="mb-2 block text-sm font-bold text-slate-700">Kata Laluan</label>
+                      <div class="flex rounded-xl border border-slate-300 bg-white focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-100">
+                        <input id="password" type="password" placeholder="********" class="min-w-0 flex-1 rounded-l-xl border-0 px-4 py-4 text-slate-900 outline-none" />
+                        <button type="button" onclick="togglePasswordVisibility()" class="w-16 rounded-r-xl border-l border-slate-200 text-lg text-slate-500 hover:bg-slate-50" title="Tunjuk atau sembunyi kata laluan">👁</button>
+                      </div>
+                    </div>
+
+                    <p class="text-sm text-slate-500">Untuk login kali pertama, sila gunakan kata laluan yang didaftarkan semasa pendaftaran akaun.</p>
+
+                    <button onclick="login()" class="w-full rounded-xl bg-cyan-500 px-5 py-4 text-base font-black text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-600 active:scale-[0.99]">Log Masuk</button>
+                  </div>
+
+                  ${!isLecturerPortal ? `<div class="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-slate-500">Daftar Akaun</p>
+                    <h3 class="mt-2 text-xl font-black text-slate-900">Belum ada akaun?</h3>
+                    <div class="mt-4 grid gap-3">
+                      <input id="rName" type="text" placeholder="Nama Penuh" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+                      <input id="rEmail" type="email" placeholder="Emel" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+                      <input id="rPassword" type="password" placeholder="Kata Laluan" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+                      <select id="rProgram" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500">
+                        <option value="">Pilih Program / Kursus</option>
+                        ${PROGRAM_OPTIONS.map((program) => `<option value="${program}">${program}</option>`).join("")}
+                      </select>
+                    </div>
+                    <button onclick="register()" class="mt-4 w-full rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800">Daftar Sekarang</button>
+                  </div>` : ""}
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      `;
+    }
+
+    function scrollToPortal() {
+      document.getElementById("student-portal-login")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goToStudentPortal() {
+      if (window.location.pathname === "/student-portal") {
+        scrollToPortal();
+        return;
+      }
+
+      window.location.href = IS_STATIC_PREVIEW ? `${LOCAL_API_ORIGIN}/student-portal` : "/student-portal";
+    }
+
+    function goToLecturerPortal() {
+      if (window.location.pathname === "/lecturer-portal") {
+        scrollToPortal();
+        return;
+      }
+
+      window.location.href = IS_STATIC_PREVIEW ? `${LOCAL_API_ORIGIN}/lecturer-portal` : "/lecturer-portal";
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById("password");
+      if (!passwordInput) return;
+      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      token = null;
+      currentUser = null;
+      renderLogin();
+    }
+
+    function goBackToPortal() {
+      renderDashboard();
+    }
+
+    // ==========================================
+    // CORE SYSTEM LAYOUT (SIDEBAR & HEADER)
+    // ==========================================
+
+    function layout(content, activeId) {
+      currentActiveMenu = activeId;
+      const isAdmin = currentUser.role === "admin";
+      const isLecturer = currentUser.role === "lecturer";
+      const studentMenu = `
+        <button onclick="renderDashboard()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'dashboard' ? 'active' : ''}">📌 Student Portal</button>
+        <button onclick="renderStudentSystem()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'student-system' ? 'active' : ''}">👨‍🎓 Sistem Pelajar</button>
+        <button onclick="renderFinance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'finance' ? 'active' : ''}">💳 Finance</button>
+        <button onclick="renderAttendance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'attendance' ? 'active' : ''}">📝 Kehadiran</button>
+        <button onclick="renderExam()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'exam' ? 'active' : ''}">✍️ Exam</button>
+      `;
+      const lecturerMenu = `
+        <button onclick="renderDashboard()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'dashboard' ? 'active' : ''}">📊 Lecturer Portal</button>
+        <button onclick="renderLecturerStudents()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'lecturer-students' ? 'active' : ''}">👨‍🎓 Maklumat Pelajar</button>
+        <button onclick="renderAttendance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'attendance' ? 'active' : ''}">📝 Kehadiran Pelajar</button>
+        <button onclick="renderLecturerResults()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'lecturer-results' ? 'active' : ''}">✍️ Keputusan CU</button>
+      `;
+      const adminMenu = `
+        <button onclick="renderDashboard()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'dashboard' ? 'active' : ''}">📊 Dashboard</button>
+        <button onclick="renderCourses()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'courses' ? 'active' : ''}">📚 LMS Courses</button>
+        <button onclick="renderFinanceSummary()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'finance-summary' ? 'active' : ''}">💳 Finance</button>
+        <button onclick="renderAttendance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'attendance' ? 'active' : ''}">📝 Attendance</button>
+        <button onclick="renderExam()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'exam' ? 'active' : ''}">✍️ Online Exam</button>
+        <button onclick="renderNotifications()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'notifications' ? 'active' : ''}">🔔 Notifications</button>
+        <button onclick="renderCMS()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'cms' ? 'active' : ''}">🌐 Web CMS</button>
+        <button onclick="renderChatbot()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'chatbot' ? 'active' : ''}">🤖 AI Voice Bot</button>
+        <div class="pt-4 mt-4 border-t border-white/10">
+          <p class="px-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Kawalan Staf</p>
+          <button onclick="renderAdmin()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-400 flex items-center gap-3 ${activeId === 'admin' ? 'active' : ''}">⚙️ Admin Panel</button>
+        </div>
+      `;
+
+      document.getElementById("app").innerHTML = `
+        <div class="min-h-screen flex bg-slate-50">
+          <aside class="fixed left-0 top-0 h-full w-72 bg-slate-950 text-white p-6 hidden lg:flex flex-col justify-between z-40 shadow-2xl animate-slide">
+            <div>
+              <div class="flex items-center gap-3 mb-8 px-2">
+                <img src="${LOGO}" alt="Logo MiCoSTSkills" class="h-12 w-12 rounded-xl bg-white object-contain p-1" />
+                <div>
+                  <h1 class="text-xl font-bold tracking-tight">MiCoSTSkills</h1>
+                  <p class="text-xs text-blue-400 font-medium">Enterprise Hub v2.5</p>
+                </div>
+              </div>
+
+              <nav class="space-y-1.5">
+                ${isAdmin ? adminMenu : isLecturer ? lecturerMenu : studentMenu}
+              </nav>
+            </div>
+
+            <button onclick="logout()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-medium shadow-lg shadow-red-900/20 active:scale-95">
+              🚪 Log Keluar
+            </button>
+          </aside>
+
+          <main class="lg:ml-72 flex-1 p-6 lg:p-8 w-full overflow-x-hidden">
+            <header class="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 p-5 mb-8 flex justify-between items-center shadow-sm">
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xl shadow-inner">
+                  ${isAdmin ? '👨‍💼' : isLecturer ? '👩‍🏫' : '👨‍🎓'}
+                </div>
+                <div>
+                  <h2 class="font-bold text-slate-800 text-lg">Selamat Kembali, ${escapeHTML(currentUser.name)}</h2>
+                  <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 border text-slate-600">${escapeHTML(currentUser.role)}</span>
+                    <span>•</span>
+                    <span class="text-indigo-600">${escapeHTML(currentUser.program || "Umum")}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                ${activeId !== "dashboard" ? `
+                  <button onclick="goBackToPortal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold active:scale-95">
+                    ← Undur
+                  </button>
+                ` : ""}
+                <button onclick="logout()" class="lg:hidden bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold active:scale-95">
+                  Keluar
+                </button>
+              </div>
+            </header>
+
+            <div class="animate-fade">
+              ${content}
+            </div>
+          </main>
+        </div>
+      `;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function emptyState(text) {
+      return `<div class="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">${text}</div>`;
+    }
+
+    function formatRM(value) {
+      return `RM ${Number(value || 0).toLocaleString("ms-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      return new Date(value).toLocaleDateString("ms-MY", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    function financeBadge(status) {
+      const key = String(status || "").toLowerCase();
+      const styles = {
+        paid: "bg-emerald-50 text-emerald-700",
+        pending: "bg-amber-50 text-amber-700",
+        overdue: "bg-red-50 text-red-700",
+      };
+      return `<span class="rounded-full px-3 py-1 text-xs font-black ${styles[key] || "bg-slate-100 text-slate-700"}">${escapeHTML(status || "No Record")}</span>`;
+    }
+
+    function getProgramCode(program = currentUser.program || "") {
+      return Object.keys(PROGRAM_UNITS).find((code) => String(program).includes(code)) || "";
+    }
+
+    function getProgramUnits(program = currentUser.program || "") {
+      return PROGRAM_UNITS[getProgramCode(program)] || [];
+    }
+
+    function studentPortalActions() {
+      const actions = [
+        { title: "Sistem Pelajar", note: currentUser.program || "Program belum ditetapkan", icon: "👨‍🎓", color: "bg-indigo-600", action: "renderStudentSystem()" },
+        { title: "Finance", note: "Tunggakan MiCoST dan asrama KPYM", icon: "💳", color: "bg-rose-600", action: "renderFinance()" },
+        { title: "Kehadiran", note: `Hanya melalui WiFi ${REQUIRED_WIFI}`, icon: "📝", color: "bg-emerald-600", action: "renderAttendance()" },
+        { title: "Exam", note: "CU mengikut kod program berdaftar", icon: "✍️", color: "bg-sky-600", action: "renderExam()" },
+      ];
+
+      return `
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          ${actions.map((item) => `
+            <button onclick="${item.action}" class="rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <div class="h-12 w-12 rounded-2xl ${item.color} text-white flex items-center justify-center text-2xl">${item.icon}</div>
+              <h3 class="mt-4 text-lg font-bold text-slate-900">${item.title}</h3>
+              <p class="mt-2 text-sm text-slate-500">${escapeHTML(item.note)}</p>
+            </button>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function moduleShell(title, subtitle, body) {
+      return `
+        <div class="mb-6">
+          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">${currentUser.role === "lecturer" ? "Lecturer Portal" : "Student Portal"}</p>
+          <h1 class="mt-3 text-3xl font-bold text-slate-900">${title}</h1>
+          <p class="mt-2 max-w-3xl text-slate-500">${subtitle}</p>
+        </div>
+        ${body}
+      `;
+    }
+
+    async function renderDashboard() {
+      try {
+        if (currentUser.role === "admin") {
+          const data = await api("/api/dashboard");
+          const cards = [
+            { title: "Pelajar", value: data.users, icon: "👨‍🎓", color: "bg-indigo-500/10 text-indigo-700" },
+            { title: "Pensyarah", value: data.lecturers, icon: "👩‍🏫", color: "bg-amber-500/10 text-amber-700" },
+            { title: "Kursus", value: data.courses, icon: "📚", color: "bg-emerald-500/10 text-emerald-700" },
+            { title: "Peperiksaan", value: data.exams, icon: "✍️", color: "bg-sky-500/10 text-sky-700" },
+          ];
+
+          const adminContent = `
+            <div class="grid gap-6 xl:grid-cols-2">
+              <div>
+                <h1 class="text-3xl font-bold text-slate-900">Dashboard Utama</h1>
+                <p class="mt-2 text-slate-500">Ringkasan prestasi dan aktiviti pelajar untuk hari ini.</p>
+              </div>
+
+              <div class="rounded-3xl bg-white border border-slate-200 p-6 shadow-sm">
+                <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Akaun</p>
+                <h2 class="mt-3 text-2xl font-bold text-slate-900">${escapeHTML(currentUser.name)}</h2>
+                <p class="mt-2 text-slate-500">Admin Sistem</p>
+              </div>
+            </div>
+
+            <div class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              ${cards.map((card) => `
+                <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">${card.title}</p>
+                      <p class="mt-4 text-4xl font-black text-slate-900">${card.value}</p>
+                    </div>
+                    <div class="h-14 w-14 rounded-3xl ${card.color} flex items-center justify-center text-3xl shadow-inner">${card.icon}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `;
+
+          layout(adminContent, "dashboard");
+          return;
+        }
+
+        if (currentUser.role === "lecturer") {
+          const [students, attendance, results] = await Promise.all([
+            api("/api/lecturer/students"),
+            api("/api/attendance"),
+            api("/api/results"),
+          ]);
+
+          layout(`
+            <section class="rounded-3xl bg-slate-950 p-6 text-white shadow-xl lg:p-8">
+              <p class="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">Lecturer Portal</p>
+              <h1 class="mt-4 text-3xl font-black tracking-tight lg:text-4xl">Selamat Datang, ${escapeHTML(currentUser.name)}</h1>
+              <p class="mt-3 max-w-3xl text-slate-300">Masukkan keputusan exam setiap CU, semak kehadiran pelajar dan lihat maklumat ringkas pelajar sahaja.</p>
+            </section>
+            <div class="mt-6 grid gap-4 md:grid-cols-3">
+              <button onclick="renderLecturerStudents()" class="rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm hover:shadow-lg">
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Pelajar</p>
+                <p class="mt-4 text-3xl font-black text-slate-900">${students.length}</p>
+                <p class="mt-2 text-sm text-slate-500">Maklumat ringkas dan program.</p>
+              </button>
+              <button onclick="renderAttendance()" class="rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm hover:shadow-lg">
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Kehadiran</p>
+                <p class="mt-4 text-3xl font-black text-slate-900">${attendance.length}</p>
+                <p class="mt-2 text-sm text-slate-500">Rekod hadir pelajar.</p>
+              </button>
+              <button onclick="renderLecturerResults()" class="rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm hover:shadow-lg">
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Keputusan CU</p>
+                <p class="mt-4 text-3xl font-black text-slate-900">${results.length}</p>
+                <p class="mt-2 text-sm text-slate-500">Rekod keputusan dimasukkan.</p>
+              </button>
+            </div>
+          `, "dashboard");
+          return;
+        }
+
+        const [attendance, results, exams, finance] = await Promise.all([
+          api("/api/attendance"),
+          api("/api/results"),
+          api("/api/exams"),
+          api("/api/finance/me").catch(() => null),
+        ]);
+        const today = new Date().toISOString().split("T")[0];
+        const hasTodayAttendance = attendance.some((row) => String(row.date || "").slice(0, 10) === today);
+        const latestResult = results[0];
+
+        const content = `
+          <section class="rounded-3xl bg-slate-950 p-6 text-white shadow-xl lg:p-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">Student Portal</p>
+            <div class="mt-5 grid gap-6 xl:grid-cols-[1.4fr_0.8fr] xl:items-end">
+              <div>
+                <h1 class="text-3xl font-black tracking-tight lg:text-4xl">Selamat Datang, ${escapeHTML(currentUser.name)}</h1>
+                <p class="mt-4 max-w-3xl text-slate-300">Masuk untuk mengurus kehadiran, exam dan sistem pelajar anda.</p>
+              </div>
+              <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Program Aktif</p>
+                <p class="mt-3 font-bold text-white">${escapeHTML(currentUser.program || "Program belum ditetapkan")}</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="mt-6">
+            ${studentPortalActions()}
+          </div>
+
+          <div class="mt-6 grid gap-4 lg:grid-cols-2">
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Finance</p>
+                  <p class="mt-4 text-2xl font-black ${finance?.totals?.outstanding > 0 ? "text-red-700" : "text-emerald-700"}">${formatRM(finance?.totals?.outstanding || 0)}</p>
+                  <p class="mt-2 text-sm text-slate-500">Baki tertunggak daripada rekod MiCoST/KPYM.</p>
+                </div>
+                ${financeBadge(finance?.status || "No Record")}
+              </div>
+              <button onclick="renderFinance()" class="mt-5 rounded-2xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">Lihat Finance</button>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Kehadiran Hari Ini</p>
+              <p class="mt-4 text-2xl font-black ${hasTodayAttendance ? "text-emerald-700" : "text-amber-700"}">${hasTodayAttendance ? "Sudah Dicatat" : "Belum Dicatat"}</p>
+              <button onclick="renderAttendance()" class="mt-5 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Urus Kehadiran</button>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Exam</p>
+              <p class="mt-4 text-2xl font-black text-slate-900">${results.length}/${exams.length}</p>
+              <p class="mt-2 text-sm text-slate-500">${latestResult ? `Keputusan terakhir: ${escapeHTML(latestResult.title)} (${escapeHTML(latestResult.score)}%)` : "Belum ada keputusan."}</p>
+              <button onclick="renderExam()" class="mt-5 rounded-2xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white">Buka Exam</button>
+            </div>
+          </div>
+        `;
+
+        layout(content, "dashboard");
+      } catch (e) {
+        layout(`<h1 class="text-2xl font-bold">Student Portal</h1><p class=\"mt-4 text-slate-500\">Data tidak dapat dimuatkan sekarang: ${escapeHTML(e.message)}</p>`, "dashboard");
+      }
+    }
+
+    function renderStudentSystem() {
+      const program = currentUser.program || "Program belum ditetapkan";
+      const profile = currentUser.profile || {};
+      const programGroup = program.includes("F432")
+        ? "Elektrik"
+        : program.includes("IT-020")
+          ? "Komputer"
+          : "Umum";
+      const unitRows = getProgramUnits(program);
+
+      layout(moduleShell(
+        "Sistem Pelajar",
+        "Maklumat pelajar disusun seperti borang maklumat pelajar, bersama program dan CU berdaftar.",
+        `
+          <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Maklumat Pelajar</p>
+                <button onclick="renderStudentProfileEdit()" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-bold text-white">Edit Maklumat</button>
+              </div>
+              <div class="mt-5 space-y-4">
+                <div>
+                  <p class="text-sm text-slate-500">Nama</p>
+                  <p class="font-bold text-slate-900">${escapeHTML(currentUser.name)}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-slate-500">Emel</p>
+                  <p class="font-bold text-slate-900">${escapeHTML(currentUser.email || "-")}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-slate-500">Status Akaun</p>
+                  <p class="font-bold text-emerald-700">Aktif</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                  ${STUDENT_PROFILE_FIELDS.map(([key, label]) => `
+                    <div class="rounded-2xl bg-slate-50 p-3">
+                      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">${label}</p>
+                      <p class="mt-1 text-sm font-bold text-slate-800">${escapeHTML(profile[key] || "-")}</p>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            </section>
+
+            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Program</p>
+              <h2 class="mt-4 text-2xl font-black text-slate-900">${escapeHTML(programGroup)}</h2>
+              <p class="mt-3 text-slate-600">${escapeHTML(program)}</p>
+              <div class="mt-5 space-y-2">
+                ${unitRows.length ? unitRows.map(([code, title]) => `
+                  <div class="rounded-2xl border border-slate-200 p-3">
+                    <p class="text-xs font-black text-sky-700">${escapeHTML(code)}</p>
+                    <p class="mt-1 text-sm font-semibold text-slate-800">${escapeHTML(title)}</p>
+                  </div>
+                `).join("") : emptyState("Kod program belum dipadankan dengan CU.")}
+              </div>
+              <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                <button onclick="renderAttendance()" class="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white">Kehadiran</button>
+                <button onclick="renderExam()" class="rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white">Exam</button>
+              </div>
+            </section>
+          </div>
+
+          <div class="mt-6">
+            ${studentPortalActions()}
+          </div>
+        `
+      ), "student-system");
+    }
+
+    function renderStudentProfileEdit() {
+      const profile = currentUser.profile || {};
+
+      layout(moduleShell(
+        "Edit Maklumat Pelajar",
+        "Lengkapkan maklumat yang masih kosong. Maklumat ini akan dipaparkan semula dalam Sistem Pelajar selepas disimpan.",
+        `
+          <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="grid gap-4 md:grid-cols-2">
+              ${STUDENT_PROFILE_FIELDS.map(([key, label]) => `
+                <div>
+                  <label class="mb-2 block text-sm font-bold text-slate-700">${label}</label>
+                  <input id="edit-${key}" value="${escapeHTML(profile[key] || "")}" class="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+                </div>
+              `).join("")}
+            </div>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button onclick="saveStudentProfile()" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white">Simpan Maklumat</button>
+              <button onclick="renderStudentSystem()" class="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700">Batal</button>
+            </div>
+          </section>
+        `
+      ), "student-system");
+    }
+
+    async function saveStudentProfile() {
+      const profile = Object.fromEntries(
+        STUDENT_PROFILE_FIELDS.map(([key]) => [key, document.getElementById(`edit-${key}`)?.value?.trim() || ""])
+      );
+
+      try {
+        const data = await api("/api/me/profile", {
+          method: "PUT",
+          body: JSON.stringify({ profile }),
+        });
+
+        token = data.token;
+        currentUser = data.user;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(currentUser));
+        renderStudentSystem();
+      } catch (error) {
+        alert("Gagal simpan maklumat: " + error.message);
+      }
+    }
+
+    async function renderFinance() {
+      try {
+        const account = await api("/api/finance/me");
+        const items = account.items || [];
+        const payments = account.payments || [];
+        const totals = account.totals || {};
+
+        layout(moduleShell(
+          "Finance",
+          "Paparan tunggakan pelajar daripada sumber MiCoST dan KPYM. Dalam sistem sebenar, data ini patut masuk melalui API/SQL view yang diberi kebenaran rasmi.",
+          `
+            <section class="rounded-3xl bg-slate-950 p-6 text-white shadow-xl lg:p-8">
+              <div class="flex flex-wrap items-start justify-between gap-5">
+                <div>
+                  <p class="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">${escapeHTML(account.source || "Finance Portal")}</p>
+                  <h2 class="mt-3 text-3xl font-black">${formatRM(totals.outstanding)}</h2>
+                  <p class="mt-2 text-slate-300">Baki perlu dibayar setakat ${formatDate(account.last_synced_at)}.</p>
+                </div>
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Status</p>
+                  <div class="mt-3">${financeBadge(account.status)}</div>
+                </div>
+              </div>
+
+              <div class="mt-6 grid gap-4 md:grid-cols-3">
+                <div class="rounded-2xl bg-white/10 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Jumlah Caj</p>
+                  <p class="mt-2 text-xl font-black">${formatRM(totals.charges)}</p>
+                </div>
+                <div class="rounded-2xl bg-white/10 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Telah Bayar</p>
+                  <p class="mt-2 text-xl font-black">${formatRM(totals.paid)}</p>
+                </div>
+                <div class="rounded-2xl bg-white/10 p-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Tunggakan</p>
+                  <p class="mt-2 text-xl font-black">${formatRM(totals.outstanding)}</p>
+                </div>
+              </div>
+            </section>
+
+            <div class="mt-6 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+              <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-xl font-black text-slate-900">Pecahan Caj</h2>
+                <div class="mt-5 overflow-x-auto">
+                  <table class="w-full min-w-[720px] text-left text-sm">
+                    <thead class="border-b border-slate-200 text-xs uppercase tracking-[0.16em] text-slate-500">
+                      <tr>
+                        <th class="py-3 pr-4">Sumber</th>
+                        <th class="py-3 pr-4">Butiran</th>
+                        <th class="py-3 pr-4">Due Date</th>
+                        <th class="py-3 pr-4">Status</th>
+                        <th class="py-3 text-right">Jumlah</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${items.length ? items.map((item) => `
+                        <tr class="border-b border-slate-100 last:border-0">
+                          <td class="py-4 pr-4 font-black text-slate-900">${escapeHTML(item.source)}</td>
+                          <td class="py-4 pr-4 text-slate-600">${escapeHTML(item.description)}</td>
+                          <td class="py-4 pr-4 text-slate-600">${formatDate(item.due_date)}</td>
+                          <td class="py-4 pr-4">${financeBadge(item.status)}</td>
+                          <td class="py-4 text-right font-black text-slate-900">${formatRM(item.amount)}</td>
+                        </tr>
+                      `).join("") : `<tr><td colspan="5" class="py-6">${emptyState("Belum ada rekod finance untuk akaun ini.")}</td></tr>`}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-xl font-black text-slate-900">Sejarah Bayaran</h2>
+                <div class="mt-5 space-y-3">
+                  ${payments.length ? payments.map((payment) => `
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <p class="font-black text-slate-900">${escapeHTML(payment.reference || "Bayaran")}</p>
+                          <p class="mt-1 text-sm text-slate-500">${escapeHTML(payment.method || "Kaedah tidak dinyatakan")} • ${formatDate(payment.paid_at)}</p>
+                        </div>
+                        <p class="font-black text-emerald-700">${formatRM(payment.amount)}</p>
+                      </div>
+                    </div>
+                  `).join("") : emptyState("Belum ada sejarah bayaran.")}
+                </div>
+              </section>
+            </div>
+
+            <div class="mt-6 rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm font-semibold text-amber-900">
+              Nota FYP: paparan ini menggunakan data simulasi tempatan. Untuk production, sambungkan endpoint ini kepada API rasmi atau SQL view read-only daripada MiCoST/KPYM.
+            </div>
+          `
+        ), "finance");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan data finance: " + escapeHTML(e.message)), "finance");
+      }
+    }
+
+    async function renderFinanceSummary() {
+      try {
+        const rows = await api("/api/finance/summary");
+        const totals = rows.reduce((summary, row) => {
+          summary.charges += Number(row.totals?.charges || 0);
+          summary.paid += Number(row.totals?.paid || 0);
+          summary.outstanding += Number(row.totals?.outstanding || 0);
+          return summary;
+        }, { charges: 0, paid: 0, outstanding: 0 });
+
+        layout(`
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 class="text-3xl font-bold text-slate-900">Finance Summary</h1>
+              <p class="mt-2 text-slate-500">Ringkasan tunggakan pelajar daripada rekod simulasi MiCoST/KPYM.</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Jumlah Tunggakan</p>
+              <p class="mt-2 text-2xl font-black text-red-700">${formatRM(totals.outstanding)}</p>
+            </div>
+          </div>
+
+          <div class="mt-6 grid gap-4 md:grid-cols-3">
+            <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Jumlah Caj</p>
+              <p class="mt-3 text-2xl font-black text-slate-900">${formatRM(totals.charges)}</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Telah Bayar</p>
+              <p class="mt-3 text-2xl font-black text-emerald-700">${formatRM(totals.paid)}</p>
+            </div>
+            <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Pelajar Ada Rekod</p>
+              <p class="mt-3 text-2xl font-black text-slate-900">${rows.length}</p>
+            </div>
+          </div>
+
+          <section class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[820px] text-left text-sm">
+                <thead class="border-b border-slate-200 text-xs uppercase tracking-[0.16em] text-slate-500">
+                  <tr>
+                    <th class="py-3 pr-4">Pelajar</th>
+                    <th class="py-3 pr-4">Program</th>
+                    <th class="py-3 pr-4">Sumber</th>
+                    <th class="py-3 pr-4">Status</th>
+                    <th class="py-3 pr-4 text-right">Telah Bayar</th>
+                    <th class="py-3 text-right">Tunggakan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.length ? rows.map((row) => `
+                    <tr class="border-b border-slate-100 last:border-0">
+                      <td class="py-4 pr-4">
+                        <p class="font-black text-slate-900">${escapeHTML(row.name)}</p>
+                        <p class="mt-1 text-xs text-slate-500">${escapeHTML(row.email)}</p>
+                      </td>
+                      <td class="py-4 pr-4 text-slate-600">${escapeHTML(row.program || "-")}</td>
+                      <td class="py-4 pr-4 text-slate-600">${escapeHTML(row.source || "-")}</td>
+                      <td class="py-4 pr-4">${financeBadge(row.status)}</td>
+                      <td class="py-4 pr-4 text-right font-bold text-emerald-700">${formatRM(row.totals?.paid)}</td>
+                      <td class="py-4 text-right font-black text-red-700">${formatRM(row.totals?.outstanding)}</td>
+                    </tr>
+                  `).join("") : `<tr><td colspan="6" class="py-6">${emptyState("Belum ada rekod finance.")}</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        `, "finance-summary");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan ringkasan finance: " + escapeHTML(e.message)), "finance-summary");
+      }
+    }
+
+    async function renderCourses() {
+      try {
+        const courses = await api("/api/courses");
+        const adminForm = currentUser.role === "admin" ? `
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold">Tambah Kursus</h2>
+            <div class="mt-4 grid gap-3 md:grid-cols-3">
+              <input id="courseTitle" placeholder="Tajuk" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <input id="courseLecturer" placeholder="Pensyarah" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <input id="courseDescription" placeholder="Penerangan" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+            </div>
+            <button onclick="addCourse()" class="mt-4 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white">Simpan Kursus</button>
+          </div>
+        ` : "";
+
+        layout(`
+          <h1 class="text-3xl font-bold text-slate-900">LMS Courses</h1>
+          <div class="mt-6 space-y-6">
+            ${adminForm}
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              ${courses.length ? courses.map(course => `
+                <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 class="text-xl font-bold">${escapeHTML(course.title)}</h2>
+                  <p class="mt-2 text-sm text-slate-500">${escapeHTML(course.lecturer || "Pensyarah belum ditetapkan")}</p>
+                  <p class="mt-4 text-slate-600">${escapeHTML(course.description || "Tiada penerangan.")}</p>
+                </article>
+              `).join("") : emptyState("Belum ada kursus dalam database.")}
+            </div>
+          </div>
+        `, "courses");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan kursus: " + escapeHTML(e.message)), "courses");
+      }
+    }
+
+    async function addCourse() {
+      await api("/api/courses", {
+        method: "POST",
+        body: JSON.stringify({
+          title: document.getElementById("courseTitle").value,
+          lecturer: document.getElementById("courseLecturer").value,
+          description: document.getElementById("courseDescription").value,
+        }),
+      });
+      renderCourses();
+    }
+
+    async function renderAttendance() {
+      try {
+        const rows = await api("/api/attendance");
+        const wifi = currentUser.role === "student" ? await api("/api/network-status").catch((error) => ({ allowed: false, message: error.message, required: REQUIRED_WIFI })) : null;
+        const canMark = currentUser.role === "student";
+        layout(`
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 class="text-3xl font-bold text-slate-900">Kehadiran</h1>
+              ${wifi ? `<p class="mt-2 text-sm font-semibold ${wifi.allowed ? "text-emerald-700" : "text-red-600"}">${escapeHTML(wifi.message)} ${wifi.ssid ? `SSID semasa: ${escapeHTML(wifi.ssid)}` : ""}</p>` : ""}
+            </div>
+            ${canMark ? `<button onclick="markAttendance()" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white ${wifi?.allowed ? "" : "opacity-60"}">Catat Hadir Hari Ini</button>` : ""}
+          </div>
+          ${canMark ? `<div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">Kehadiran hanya dibenarkan apabila peranti server portal bersambung kepada WiFi ${REQUIRED_WIFI}.</div>` : ""}
+          <div class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            ${rows.length ? rows.map(row => `
+              <div class="flex items-center justify-between border-b border-slate-100 py-3 last:border-0">
+                <div>
+                  <p class="font-semibold">${escapeHTML(row.name || currentUser.name)}</p>
+                  <p class="text-sm text-slate-500">${escapeHTML(row.date)}${row.wifi_ssid ? ` • ${escapeHTML(row.wifi_ssid)}` : ""}</p>
+                </div>
+                <span class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">${escapeHTML(row.status)}</span>
+              </div>
+            `).join("") : emptyState("Belum ada rekod kehadiran.")}
+          </div>
+        `, "attendance");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan kehadiran: " + escapeHTML(e.message)), "attendance");
+      }
+    }
+
+    async function markAttendance() {
+      try {
+        await api("/api/attendance", { method: "POST", body: JSON.stringify({ status: "Hadir" }) });
+        renderAttendance();
+      } catch (error) {
+        alert(error.message);
+        renderAttendance();
+      }
+    }
+
+    async function renderExam() {
+      try {
+        const exams = await api("/api/exams");
+        const results = await api("/api/results");
+        const adminForm = currentUser.role === "admin" ? `
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-bold">Tambah Exam</h2>
+            <div class="mt-4 grid gap-3 md:grid-cols-4">
+              <input id="examTitle" placeholder="Tajuk" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <input id="examQuestion" placeholder="Soalan" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <input id="examAnswer" placeholder="Jawapan betul" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <select id="examProgram" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500">
+                <option value="">Pilih Kod Program</option>
+                ${Object.keys(PROGRAM_UNITS).map((code) => `<option value="${code}">${code}</option>`).join("")}
+              </select>
+            </div>
+            <button onclick="addExam()" class="mt-4 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white">Simpan Exam</button>
+          </div>
+        ` : "";
+
+        layout(`
+          <h1 class="text-3xl font-bold text-slate-900">Online Exam</h1>
+          <div class="mt-6 space-y-6">
+            ${adminForm}
+            ${exams.length ? exams.map(exam => `
+              <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-xl font-bold">${escapeHTML(exam.title)}</h2>
+                <p class="mt-3 text-slate-600">${escapeHTML(exam.question)}</p>
+                ${exam.lecturer_managed ? `
+                  <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-semibold text-sky-900">Keputusan CU ini akan dipaparkan selepas pensyarah masukkan keputusan.</div>
+                ` : `<div class="mt-4 flex flex-col gap-3 sm:flex-row">
+                  <input id="answer-${exam.id}" placeholder="Jawapan anda" class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+                  <button onclick="submitExam(${JSON.stringify(exam.id)})" class="rounded-2xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white">Hantar</button>
+                </div>`}
+              </article>
+            `).join("") : emptyState("Belum ada exam.")}
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h2 class="text-lg font-bold">Keputusan</h2>
+              <div class="mt-4 space-y-2">
+                ${results.length ? results.map(result => `<p class="text-slate-600">${escapeHTML(result.name || currentUser.name)} - ${escapeHTML(result.title)}: <strong>${escapeHTML(result.score)}%</strong></p>`).join("") : "<p class='text-slate-500'>Belum ada keputusan.</p>"}
+              </div>
+            </div>
+          </div>
+        `, "exam");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan exam: " + escapeHTML(e.message)), "exam");
+      }
+    }
+
+    async function addExam() {
+      await api("/api/exams", {
+        method: "POST",
+        body: JSON.stringify({
+          title: document.getElementById("examTitle").value,
+          question: document.getElementById("examQuestion").value,
+          answer: document.getElementById("examAnswer").value,
+          program_code: document.getElementById("examProgram")?.value || "",
+        }),
+      });
+      renderExam();
+    }
+
+    async function submitExam(id) {
+      const answer = document.getElementById(`answer-${id}`).value;
+      const result = await api(`/api/exams/${id}/submit`, { method: "POST", body: JSON.stringify({ answer }) });
+      alert(`Markah anda: ${result.score}%`);
+      renderExam();
+    }
+
+    async function renderLecturerStudents() {
+      try {
+        const students = await api("/api/lecturer/students");
+        const groupedStudents = Object.keys(PROGRAM_UNITS).map((programCode) => ({
+          code: programCode,
+          label: PROGRAM_LABELS[programCode],
+          students: students.filter((student) => student.program_code === programCode),
+        }));
+        layout(moduleShell(
+          "Maklumat Pelajar",
+          "Paparan pensyarah diasingkan mengikut kod program dan hanya menunjukkan maklumat ringkas untuk menjaga privasi pelajar.",
+          `
+            <div class="space-y-8">
+              ${groupedStudents.map((group) => `
+                <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div class="flex flex-wrap items-end justify-between gap-3 border-b border-slate-100 pb-4">
+                    <div>
+                      <p class="text-sm font-black uppercase tracking-[0.22em] text-sky-700">${escapeHTML(group.code)}</p>
+                      <h2 class="mt-2 text-2xl font-black text-slate-900">${escapeHTML(group.label)}</h2>
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700">${group.students.length} Pelajar</span>
+                  </div>
+
+                  <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                    ${group.students.length ? group.students.map((student) => `
+                      <article class="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+                        <div class="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 class="text-xl font-black text-slate-900">${escapeHTML(student.name)}</h3>
+                            <p class="mt-1 text-sm text-slate-500">${escapeHTML(student.program)}</p>
+                          </div>
+                          <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">${escapeHTML(student.status)}</span>
+                        </div>
+                        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                          <div class="rounded-2xl bg-white p-3">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Emel</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">${escapeHTML(student.email)}</p>
+                          </div>
+                          <div class="rounded-2xl bg-white p-3">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Telefon</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">${escapeHTML(student.phone || "-")}</p>
+                          </div>
+                          <div class="rounded-2xl bg-white p-3">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Kod Program</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">${escapeHTML(student.program_code || "-")}</p>
+                          </div>
+                          <div class="rounded-2xl bg-white p-3">
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Jantina</p>
+                            <p class="mt-1 text-sm font-bold text-slate-800">${escapeHTML(student.gender || "-")}</p>
+                          </div>
+                        </div>
+                      </article>
+                    `).join("") : emptyState("Belum ada pelajar untuk kod program ini.")}
+                  </div>
+                </section>
+              `).join("")}
+            </div>
+          `
+        ), "lecturer-students");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan maklumat pelajar: " + escapeHTML(e.message)), "lecturer-students");
+      }
+    }
+
+    async function renderLecturerResults() {
+      try {
+        const [students, results] = await Promise.all([
+          api("/api/lecturer/students"),
+          api("/api/results"),
+        ]);
+        const selectedStudentId = Number(document.getElementById("resultStudent")?.value || students[0]?.id || 0);
+        const selectedStudent = students.find((student) => student.id === selectedStudentId) || students[0];
+        const units = selectedStudent ? getProgramUnits(selectedStudent.program) : [];
+
+        layout(moduleShell(
+          "Keputusan Exam CU",
+          "Pilih pelajar, pilih CU mengikut kod program berdaftar, kemudian simpan markah atau status keputusan.",
+          `
+            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div class="grid gap-3 lg:grid-cols-[1.2fr_1.2fr_0.7fr_0.8fr]">
+                <select id="resultStudent" onchange="renderLecturerResults()" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500">
+                  ${students.map((student) => `<option value="${student.id}" ${student.id === selectedStudent?.id ? "selected" : ""}>${escapeHTML(student.name)} - ${escapeHTML(student.program_code || "")}</option>`).join("")}
+                </select>
+                <select id="resultCu" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500">
+                  ${units.map(([code, title]) => `<option value="${code}" data-title="${escapeHTML(title)}">${escapeHTML(code)} - ${escapeHTML(title)}</option>`).join("")}
+                </select>
+                <input id="resultScore" type="number" min="0" max="100" placeholder="Markah %" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+                <select id="resultStatus" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500">
+                  <option value="Kompeten">Kompeten</option>
+                  <option value="Belum Kompeten">Belum Kompeten</option>
+                  <option value="Belum Lengkap">Belum Lengkap</option>
+                </select>
+              </div>
+              <textarea id="resultNote" placeholder="Catatan ringkas" class="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"></textarea>
+              <button onclick="saveLecturerResult()" class="mt-3 rounded-2xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white">Simpan Keputusan</button>
+            </section>
+
+            <section class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h2 class="text-lg font-black text-slate-900">Rekod Keputusan</h2>
+              <div class="mt-4 space-y-3">
+                ${results.length ? results.map((result) => `
+                  <div class="rounded-2xl border border-slate-100 p-4">
+                    <p class="font-bold text-slate-900">${escapeHTML(result.name)} - ${escapeHTML(result.title)}</p>
+                    <p class="mt-1 text-sm text-slate-500">${escapeHTML(result.cu_code || "")} • ${escapeHTML(result.status || "Direkod")} • ${escapeHTML(result.score)}%</p>
+                    ${result.note ? `<p class="mt-2 text-sm text-slate-600">${escapeHTML(result.note)}</p>` : ""}
+                  </div>
+                `).join("") : emptyState("Belum ada keputusan direkodkan.")}
+              </div>
+            </section>
+          `
+        ), "lecturer-results");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan keputusan: " + escapeHTML(e.message)), "lecturer-results");
+      }
+    }
+
+    async function saveLecturerResult() {
+      const cuSelect = document.getElementById("resultCu");
+      const title = cuSelect?.selectedOptions?.[0]?.dataset?.title || cuSelect?.value || "";
+      await api("/api/lecturer/results", {
+        method: "POST",
+        body: JSON.stringify({
+          user_id: document.getElementById("resultStudent").value,
+          cu_code: cuSelect.value,
+          title,
+          score: document.getElementById("resultScore").value,
+          status: document.getElementById("resultStatus").value,
+          note: document.getElementById("resultNote").value,
+        }),
+      });
+      renderLecturerResults();
+    }
+
+    async function renderNotifications() {
+      try {
+        const rows = await api("/api/notifications");
+        const adminForm = currentUser.role === "admin" ? `
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="grid gap-3 md:grid-cols-3">
+              <input id="notifTitle" placeholder="Tajuk" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <input id="notifMessage" placeholder="Mesej" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <button onclick="addNotification()" class="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white">Hantar Notifikasi</button>
+            </div>
+          </div>
+        ` : "";
+        layout(`<h1 class="text-3xl font-bold text-slate-900">Notifications</h1><div class="mt-6 space-y-4">${adminForm}${rows.length ? rows.map(row => `<article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><h2 class="font-bold">${escapeHTML(row.title)}</h2><p class="mt-2 text-slate-600">${escapeHTML(row.message)}</p></article>`).join("") : emptyState("Belum ada notifikasi.")}</div>`, "notifications");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan notifikasi: " + escapeHTML(e.message)), "notifications");
+      }
+    }
+
+    async function addNotification() {
+      await api("/api/notifications", { method: "POST", body: JSON.stringify({ title: document.getElementById("notifTitle").value, message: document.getElementById("notifMessage").value }) });
+      renderNotifications();
+    }
+
+    async function renderCMS() {
+      try {
+        const rows = await api("/api/cms");
+        const adminForm = currentUser.role === "admin" ? `
+          <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="grid gap-3 md:grid-cols-[1fr_2fr_auto]">
+              <input id="cmsTitle" placeholder="Tajuk halaman" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <input id="cmsContent" placeholder="Kandungan" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+              <button onclick="addCMS()" class="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white">Simpan</button>
+            </div>
+          </div>
+        ` : "";
+        layout(`<h1 class="text-3xl font-bold text-slate-900">Web CMS</h1><div class="mt-6 space-y-4">${adminForm}${rows.length ? rows.map(row => `<article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><h2 class="font-bold">${escapeHTML(row.title)}</h2><p class="mt-2 text-slate-600">${escapeHTML(row.content)}</p></article>`).join("") : emptyState("Belum ada kandungan CMS.")}</div>`, "cms");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan CMS: " + escapeHTML(e.message)), "cms");
+      }
+    }
+
+    async function addCMS() {
+      await api("/api/cms", { method: "POST", body: JSON.stringify({ title: document.getElementById("cmsTitle").value, content: document.getElementById("cmsContent").value }) });
+      renderCMS();
+    }
+
+    function renderChatbot() {
+      layout(`
+        <h1 class="text-3xl font-bold text-slate-900">AI Chatbot</h1>
+        <div class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div id="chatLog" class="min-h-48 space-y-3 rounded-2xl bg-slate-50 p-4 text-slate-700"></div>
+          <div class="mt-4 flex gap-3">
+            <input id="chatInput" placeholder="Tanya tentang program, exam, kehadiran..." class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+            <button onclick="sendChat()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Hantar</button>
+          </div>
+        </div>
+      `, "chatbot");
+    }
+
+    async function sendChat() {
+      const input = document.getElementById("chatInput");
+      const log = document.getElementById("chatLog");
+      const message = input.value.trim();
+      if (!message) return;
+      log.innerHTML += `<p><strong>Anda:</strong> ${escapeHTML(message)}</p>`;
+      input.value = "";
+      const data = await api("/api/chatbot", { method: "POST", body: JSON.stringify({ message }) });
+      log.innerHTML += `<p><strong>MiCoST AI:</strong> ${escapeHTML(data.reply)}</p>`;
+    }
+
+    async function renderAdmin() {
+      try {
+        const users = await api("/api/users");
+        layout(`
+          <h1 class="text-3xl font-bold text-slate-900">Admin Panel</h1>
+          <div class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            ${users.length ? users.map(user => `<div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 py-3 last:border-0"><span class="font-semibold">${escapeHTML(user.name)}</span><span class="text-sm text-slate-500">${escapeHTML(user.email)} - ${escapeHTML(user.role)} - ${escapeHTML(user.program || "Umum")}</span></div>`).join("") : emptyState("Belum ada pengguna.")}
+          </div>
+        `, "admin");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan admin panel: " + escapeHTML(e.message)), "admin");
+      }
+    }
+
+    if (token && currentUser && PORTAL_MODE === "lecturer" && currentUser.role !== "lecturer" && currentUser.role !== "admin") {
+      logout();
+    } else if (token && currentUser && PORTAL_MODE === "student" && currentUser.role === "lecturer") {
+      logout();
+    } else if (token && currentUser) {
+      renderDashboard();
+    } else {
+      renderLogin();
+    }
+  </script>
+</body>
+</html>
