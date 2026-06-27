@@ -67,8 +67,13 @@ function createAppStorage({ dataFile, emptyStore }) {
 
   function write(store) {
     cache = { ...emptyStore(), ...store };
-    writeLocalFile(dataFile, cache);
-    void persistRemote(cache);
+    try {
+      writeLocalFile(dataFile, cache);
+    } catch (error) {
+      if (!supabase) throw error;
+      console.warn(`Local JSON save skipped: ${error.message}`);
+    }
+    return persistRemote(cache);
   }
 
   async function persistRemote(store) {

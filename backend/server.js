@@ -127,6 +127,21 @@ app.use(cors({
   },
 }));
 app.use(express.json());
+
+app.use((req, res, next) => {
+  const host = String(req.headers.host || "").toLowerCase();
+  const shouldUseProductionHost = (req.method === "GET" || req.method === "HEAD")
+    && host.startsWith("micostskills-git-")
+    && host.endsWith(".vercel.app");
+
+  if (!shouldUseProductionHost) {
+    next();
+    return;
+  }
+
+  res.redirect(308, `https://micostskills.vercel.app${req.originalUrl || "/"}`);
+});
+
 app.use(async (_req, res, next) => {
   try {
     await storageReady;
@@ -350,7 +365,7 @@ function verifyLecturerRegistry(name) {
 }
 
 function writeStore(store) {
-  appStorage.write(store);
+  return appStorage.write(store);
 }
 
 function nextId(items) {
@@ -774,7 +789,7 @@ app.get("/api/me", auth, (req, res) => {
   res.json(req.user);
 });
 
-app.put("/api/me/profile", auth, (req, res) => {
+app.put("/api/me/profile", auth, async (req, res) => {
   if (req.user.role !== "student") {
     return res.status(403).json({ error: "Pelajar sahaja boleh mengemaskini maklumat pelajar." });
   }
@@ -795,7 +810,7 @@ app.put("/api/me/profile", auth, (req, res) => {
     user.program = req.body.program;
   }
 
-  writeStore(store);
+  await writeStore(store);
   res.json({ success: true, user: publicUser(user), token: signUser(user) });
 });
 
