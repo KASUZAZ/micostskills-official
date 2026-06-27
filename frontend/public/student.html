@@ -61,6 +61,7 @@
     const API = IS_STATIC_PREVIEW ? LOCAL_API_ORIGIN : window.location.origin;
     let token = localStorage.getItem("token");
     let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+    const portalChatHistory = [];
     let currentActiveMenu = "dashboard";
     const LOGO = "./resources/logo-micostskills.png";
     const portalParam = new URLSearchParams(window.location.search).get("portal");
@@ -75,7 +76,7 @@
       "IT-020-3:2013 Operasi Sistem Komputer",
       "IT-020-4:2013 Pentadbiran Sistem Komputer",
     ];
-    const REQUIRED_WIFI = "@MiCoSTHotspotD_2n3";
+    const REQUIRED_WIFI = "@MiCoSTHotSpotD_2n3";
     const STUDENT_PROFILE_FIELDS = [
       ["ic", "No Kad Pengenalan"],
       ["birthDate", "Tarikh Lahir"],
@@ -220,11 +221,12 @@
 
     async function register() {
       const name = document.getElementById("rName").value.trim();
+      const ic = document.getElementById("rIc").value.trim();
       const email = document.getElementById("rEmail").value.trim();
       const password = document.getElementById("rPassword").value;
       const program = document.getElementById("rProgram").value.trim();
 
-      if (!name || !email || !password || !program) {
+      if (!name || !ic || !email || !password || !program) {
         alert("⚠️ Sila isi semua ruangan pendaftaran.");
         return;
       }
@@ -235,7 +237,7 @@
           res = await fetch(`${API}/api/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, password, program }),
+            body: JSON.stringify({ name, ic, email, password, program }),
           });
         } catch {
           throw new Error(backendOfflineMessage());
@@ -252,6 +254,40 @@
       }
     }
 
+    async function registerLecturer() {
+      const name = document.getElementById("lrName")?.value.trim();
+      const email = document.getElementById("lrEmail")?.value.trim();
+      const password = document.getElementById("lrPassword")?.value;
+      const teachingPrograms = Array.from(document.querySelectorAll("[name='lrProgram']:checked")).map((item) => item.value);
+
+      if (!name || !email || !password || !teachingPrograms.length) {
+        alert("⚠️ Sila isi nama, email, kata laluan dan pilih sekurang-kurangnya satu program.");
+        return;
+      }
+
+      try {
+        let res;
+        try {
+          res = await fetch(`${API}/api/lecturer/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password, teaching_programs: teachingPrograms }),
+          });
+        } catch {
+          throw new Error(backendOfflineMessage());
+        }
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.error) throw new Error(data.error || "Gagal berhubung dengan backend.");
+
+        alert("✅ " + data.message);
+        document.getElementById("email").value = email;
+        document.getElementById("password").value = password;
+      } catch (e) {
+        alert("❌ Pendaftaran lecturer gagal: " + e.message);
+      }
+    }
+
     function renderLogin() {
       const isDirectStudentPortal = window.location.pathname === "/student-portal";
       const isLecturerPortal = PORTAL_MODE === "lecturer";
@@ -263,6 +299,46 @@
         ? "Masuk untuk mengurus keputusan CU, kehadiran dan maklumat ringkas pelajar."
         : "Masuk untuk mengurus kehadiran, exam dan sistem pelajar anda.";
       const emailLabel = isAdminPortal ? "Emel Admin" : isLecturerPortal ? "Emel Pensyarah" : "Emel Pelajar";
+      const lecturerRegisterPanel = isLecturerPortal ? `
+        <div class="mt-8 rounded-3xl border border-sky-200 bg-sky-50 p-5">
+          <p class="text-sm font-bold uppercase tracking-[0.2em] text-sky-700">Daftar Lecturer</p>
+          <h3 class="mt-2 text-xl font-black text-slate-900">Pilih program yang diajar</h3>
+          <p class="mt-2 text-sm font-semibold text-slate-600">Lecturer boleh pilih lebih daripada satu program mengikut kemahiran masing-masing.</p>
+          <div class="mt-4 grid gap-3">
+            <input id="lrName" type="text" placeholder="Nama rasmi pensyarah" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+            <input id="lrEmail" type="email" placeholder="Emel pensyarah" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+            <input id="lrPassword" type="password" placeholder="Kata laluan" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+              <p class="mb-3 text-xs font-black uppercase tracking-[0.18em] text-slate-500">Role / Program Diajar</p>
+              <div class="grid gap-2">
+                ${Object.entries(PROGRAM_LABELS).map(([code, label]) => `
+                  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-700 hover:border-sky-300">
+                    <input name="lrProgram" type="checkbox" value="${code}" class="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+                    <span><span class="block text-slate-950">${escapeHTML(code)}</span><span class="font-semibold text-slate-500">${escapeHTML(label)}</span></span>
+                  </label>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+          <button onclick="registerLecturer()" class="mt-4 w-full rounded-xl bg-sky-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-sky-800">Daftar Lecturer</button>
+        </div>
+      ` : "";
+      const studentRegisterPanel = !isLecturerPortal ? `<div class="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-slate-500">Daftar Akaun</p>
+        <h3 class="mt-2 text-xl font-black text-slate-900">Belum ada akaun?</h3>
+        <p class="mt-2 text-sm font-semibold text-slate-500">Hanya pelajar yang nama dan IC wujud dalam rekod rasmi MiCoSTSkills boleh mendaftar.</p>
+        <div class="mt-4 grid gap-3">
+          <input id="rName" type="text" placeholder="Nama Penuh" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+          <input id="rIc" type="text" inputmode="numeric" placeholder="No Kad Pengenalan, contoh 060812-04-0054" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+          <input id="rEmail" type="email" placeholder="Emel" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+          <input id="rPassword" type="password" placeholder="Kata Laluan" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
+          <select id="rProgram" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500">
+            <option value="">Pilih Program / Kursus</option>
+            ${PROGRAM_OPTIONS.map((program) => `<option value="${program}">${program}</option>`).join("")}
+          </select>
+        </div>
+        <button onclick="register()" class="mt-4 w-full rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800">Daftar Sekarang</button>
+      </div>` : "";
 
       document.getElementById("app").innerHTML = `
         <main class="min-h-screen bg-slate-50">
@@ -413,20 +489,8 @@
                     <button onclick="login()" class="w-full rounded-xl bg-cyan-500 px-5 py-4 text-base font-black text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-600 active:scale-[0.99]">Log Masuk</button>
                   </div>
 
-                  ${!isLecturerPortal ? `<div class="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-slate-500">Daftar Akaun</p>
-                    <h3 class="mt-2 text-xl font-black text-slate-900">Belum ada akaun?</h3>
-                    <div class="mt-4 grid gap-3">
-                      <input id="rName" type="text" placeholder="Nama Penuh" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
-                      <input id="rEmail" type="email" placeholder="Emel" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
-                      <input id="rPassword" type="password" placeholder="Kata Laluan" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500" />
-                      <select id="rProgram" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-cyan-500">
-                        <option value="">Pilih Program / Kursus</option>
-                        ${PROGRAM_OPTIONS.map((program) => `<option value="${program}">${program}</option>`).join("")}
-                      </select>
-                    </div>
-                    <button onclick="register()" class="mt-4 w-full rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800">Daftar Sekarang</button>
-                  </div>` : ""}
+                  ${lecturerRegisterPanel}
+                  ${studentRegisterPanel}
                 </div>
               </div>
             </div>
@@ -498,12 +562,15 @@
         <button onclick="renderFinance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'finance' ? 'active' : ''}">💳 Finance</button>
         <button onclick="renderAttendance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'attendance' ? 'active' : ''}">📝 Kehadiran</button>
         <button onclick="renderExam()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'exam' ? 'active' : ''}">✍️ Exam</button>
+        <button onclick="renderChatbot()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'chatbot' ? 'active' : ''}">🤖 AI Chatbot</button>
       `;
       const lecturerMenu = `
         <button onclick="renderDashboard()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'dashboard' ? 'active' : ''}">📊 Lecturer Portal</button>
         <button onclick="renderLecturerStudents()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'lecturer-students' ? 'active' : ''}">👨‍🎓 Maklumat Pelajar</button>
         <button onclick="renderAttendance()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'attendance' ? 'active' : ''}">📝 Kehadiran Pelajar</button>
         <button onclick="renderLecturerResults()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'lecturer-results' ? 'active' : ''}">✍️ Keputusan CU</button>
+        <button onclick="renderLecturerElearning()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'lecturer-elearning' ? 'active' : ''}">📚 E-Learning Manager</button>
+        <button onclick="renderChatbot()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'chatbot' ? 'active' : ''}">🤖 AI Chatbot</button>
       `;
       const adminMenu = `
         <button onclick="renderDashboard()" class="menu-btn w-full text-left px-4 py-3 rounded-xl hover:bg-white/5 flex items-center gap-3 text-slate-300 ${activeId === 'dashboard' ? 'active' : ''}">📊 Dashboard</button>
@@ -616,6 +683,32 @@
 
     function getProgramUnits(program = currentUser.program || "") {
       return PROGRAM_UNITS[getProgramCode(program)] || [];
+    }
+
+    function lecturerProgramCodes() {
+      const codes = Array.isArray(currentUser?.teaching_programs) ? currentUser.teaching_programs : [];
+      const cleanCodes = codes.filter((code) => PROGRAM_UNITS[code]);
+      return cleanCodes.length ? cleanCodes : Object.keys(PROGRAM_UNITS);
+    }
+
+    function courseForProgramCode(programCode) {
+      return String(programCode || "").startsWith("F432") ? "elektrik" : "komputer";
+    }
+
+    function formatAttendanceStatus(status) {
+      const value = String(status || "").toUpperCase();
+      if (value === "HADIR") return "/";
+      if (value === "TH") return "TH";
+      if (value === "MC") return "MC";
+      if (value === "LEWAT") return "L";
+      return "";
+    }
+
+    function getMondayISO(value = new Date()) {
+      const date = new Date(value);
+      const day = date.getDay() || 7;
+      date.setDate(date.getDate() - day + 1);
+      return date.toISOString().slice(0, 10);
     }
 
     function studentPortalActions() {
@@ -1127,6 +1220,91 @@
 
     async function renderAttendance() {
       try {
+        if (currentUser.role === "lecturer" || currentUser.role === "admin") {
+          const selectedProgram = document.getElementById("attendanceProgram")?.value || lecturerProgramCodes()[0] || Object.keys(PROGRAM_UNITS)[0];
+          const selectedWeek = document.getElementById("attendanceWeek")?.value || getMondayISO();
+          const selectedBatch = document.getElementById("attendanceBatch")?.value || "";
+          const sheet = await api(`/api/lecturer/attendance-sheet?program_code=${encodeURIComponent(selectedProgram)}&week_start=${encodeURIComponent(selectedWeek)}&batch=${encodeURIComponent(selectedBatch)}`);
+          const statusOptions = ["", "Hadir", "TH", "MC", "Lewat"];
+          layout(moduleShell(
+            "Kehadiran Pelajar",
+            "Jadual diasingkan mengikut program supaya rekod PG/PTG lebih kemas seperti borang kehadiran pusat latihan.",
+            `
+              <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="grid gap-3 lg:grid-cols-[1.4fr_0.8fr_1fr_auto]">
+                  <select id="attendanceProgram" onchange="renderAttendance()" class="rounded-2xl border border-slate-200 px-4 py-3 font-bold text-slate-800 outline-none focus:border-indigo-500">
+                    ${sheet.programs.map((program) => `<option value="${program.code}" ${program.code === sheet.program.code ? "selected" : ""}>${escapeHTML(program.code)} - ${escapeHTML(program.title)}</option>`).join("")}
+                  </select>
+                  <input id="attendanceWeek" type="date" value="${escapeHTML(sheet.week_start)}" onchange="renderAttendance()" class="rounded-2xl border border-slate-200 px-4 py-3 font-bold text-slate-800 outline-none focus:border-indigo-500" />
+                  <input id="attendanceBatch" value="${escapeHTML(sheet.batch || "")}" placeholder="Batch, contoh Batch 9 2025/2026" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+                  <button onclick="renderAttendance()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white">Muat Semula</button>
+                </div>
+                <div class="mt-5 grid gap-3 md:grid-cols-3">
+                  <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Nama Pengajar</p>
+                    <p class="mt-1 font-black text-slate-900">${escapeHTML(sheet.lecturer)}</p>
+                  </div>
+                  <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Program</p>
+                    <p class="mt-1 font-black text-slate-900">${escapeHTML(sheet.program.code)}</p>
+                  </div>
+                  <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Jumlah Pelajar</p>
+                    <p class="mt-1 font-black text-slate-900">${sheet.students.length}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <div class="overflow-x-auto">
+                  <table class="min-w-[1120px] w-full border-collapse text-sm">
+                    <thead>
+                      <tr class="bg-slate-950 text-white">
+                        <th rowspan="2" class="border border-slate-800 px-3 py-3 text-left">Bil</th>
+                        <th rowspan="2" class="border border-slate-800 px-3 py-3 text-left">Nama</th>
+                        <th rowspan="2" class="border border-slate-800 px-3 py-3 text-left">No KP</th>
+                        ${sheet.days.map((day) => `<th colspan="2" class="border border-slate-800 px-3 py-3 text-center">${escapeHTML(day.label)}<br><span class="text-xs font-semibold uppercase text-slate-300">${escapeHTML(day.day)}</span></th>`).join("")}
+                        <th rowspan="2" class="border border-slate-800 px-3 py-3 text-left">Catatan</th>
+                      </tr>
+                      <tr class="bg-slate-800 text-white">
+                        ${sheet.days.map(() => `<th class="border border-slate-700 px-2 py-2 text-center">PG</th><th class="border border-slate-700 px-2 py-2 text-center">PTG</th>`).join("")}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${sheet.students.length ? sheet.students.map((student) => `
+                        <tr class="odd:bg-white even:bg-slate-50">
+                          <td class="border border-slate-200 px-3 py-3 font-bold">${student.bil}</td>
+                          <td class="border border-slate-200 px-3 py-3 font-black text-slate-900">${escapeHTML(student.name)}</td>
+                          <td class="border border-slate-200 px-3 py-3 text-slate-600">${escapeHTML(student.ic || "-")}</td>
+                          ${sheet.days.map((day) => ["PG", "PTG"].map((session) => {
+                            const cell = student.cells[`${day.date}-${session}`] || {};
+                            return `
+                              <td class="border border-slate-200 px-2 py-2 text-center">
+                                <select onchange="saveLecturerAttendance(${student.id}, '${day.date}', '${session}', this.value)" class="w-24 rounded-xl border border-slate-200 bg-white px-2 py-2 text-center font-bold outline-none focus:border-sky-500">
+                                  ${statusOptions.map((status) => `<option value="${status}" ${status === cell.status ? "selected" : ""}>${status ? escapeHTML(formatAttendanceStatus(status)) : "-"}</option>`).join("")}
+                                </select>
+                              </td>
+                            `;
+                          }).join("")).join("")}
+                          <td class="border border-slate-200 px-3 py-3">
+                            <input id="attendanceNote-${student.id}" placeholder="Catatan" class="w-36 rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-sky-500" />
+                          </td>
+                        </tr>
+                      `).join("") : `<tr><td colspan="14" class="p-6">${emptyState("Belum ada pelajar untuk program ini.")}</td></tr>`}
+                    </tbody>
+                  </table>
+                </div>
+                <div class="flex flex-wrap gap-2 border-t border-slate-100 bg-slate-50 p-4 text-xs font-bold text-slate-600">
+                  <span class="rounded-full bg-white px-3 py-2">/ = Hadir</span>
+                  <span class="rounded-full bg-white px-3 py-2">TH = Tidak Hadir</span>
+                  <span class="rounded-full bg-white px-3 py-2">MC = Sijil Sakit</span>
+                  <span class="rounded-full bg-white px-3 py-2">L = Lewat</span>
+                </div>
+              </section>
+            `
+          ), "attendance");
+          return;
+        }
         const rows = await api("/api/attendance");
         const wifi = currentUser.role === "student" ? await api("/api/network-status").catch((error) => ({ allowed: false, message: error.message, required: REQUIRED_WIFI })) : null;
         const canMark = currentUser.role === "student";
@@ -1163,6 +1341,18 @@
       } catch (error) {
         alert(error.message);
         renderAttendance();
+      }
+    }
+
+    async function saveLecturerAttendance(userId, date, session, status) {
+      try {
+        const note = document.getElementById(`attendanceNote-${userId}`)?.value || "";
+        await api("/api/lecturer/attendance", {
+          method: "POST",
+          body: JSON.stringify({ user_id: userId, date, session, status, note }),
+        });
+      } catch (error) {
+        alert(error.message);
       }
     }
 
@@ -1368,6 +1558,126 @@
       renderLecturerResults();
     }
 
+    async function renderLecturerElearning() {
+      try {
+        const data = await api("/api/lecturer/elearning");
+        const selectedProgram = document.getElementById("learnProgram")?.value || data.programs[0]?.code || "";
+        const selectedCourse = courseForProgramCode(selectedProgram) || Object.keys(data.question_banks)[0] || "komputer";
+        const questions = data.question_banks[selectedCourse] || [];
+        const selectedQuestionId = document.getElementById("learnQuestion")?.value || questions[0]?.id || "";
+        const selectedQuestion = questions.find((item) => item.id === selectedQuestionId) || questions[0] || {};
+        const materials = data.materials.filter((item) => !selectedProgram || item.program_code === selectedProgram);
+
+        layout(moduleShell(
+          "E-Learning Manager",
+          "Tambah nota, link video, maklumat pembelajaran dan kemas kini soalan final exam mengikut program yang diajar.",
+          `
+            <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-sky-700">Bahan Pembelajaran</p>
+                    <h2 class="mt-2 text-2xl font-black text-slate-900">Nota & Maklumat E-Learning</h2>
+                  </div>
+                  <select id="learnProgram" onchange="renderLecturerElearning()" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-sky-500">
+                    ${data.programs.map((program) => `<option value="${program.code}" ${program.code === selectedProgram ? "selected" : ""}>${escapeHTML(program.code)} - ${escapeHTML(program.title)}</option>`).join("")}
+                  </select>
+                </div>
+
+                <div class="mt-5 grid gap-3">
+                  <input id="materialTitle" placeholder="Tajuk nota / bahan" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-500" />
+                  <select id="materialType" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-500">
+                    <option value="Nota">Nota</option>
+                    <option value="Video">Video</option>
+                    <option value="Tugasan">Tugasan</option>
+                    <option value="Rujukan">Rujukan</option>
+                  </select>
+                  <input id="materialLink" placeholder="Link YouTube / dokumen jika ada" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-500" />
+                  <textarea id="materialContent" rows="5" placeholder="Maklumat ringkas atau nota untuk pelajar" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-sky-500"></textarea>
+                  <button onclick="saveElearningMaterial()" class="rounded-2xl bg-sky-700 px-5 py-3 text-sm font-black text-white">Simpan Bahan</button>
+                </div>
+
+                <div class="mt-6 space-y-3">
+                  ${materials.length ? materials.map((item) => `
+                    <article class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                      <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-sky-700">${escapeHTML(item.type || "Nota")}</span>
+                          <h3 class="mt-3 font-black text-slate-900">${escapeHTML(item.title)}</h3>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">${escapeHTML(item.program_code)}</span>
+                      </div>
+                      ${item.content ? `<p class="mt-3 text-sm leading-6 text-slate-600">${escapeHTML(item.content)}</p>` : ""}
+                      ${item.link ? `<a href="${escapeHTML(item.link)}" target="_blank" class="mt-3 inline-flex rounded-xl bg-white px-3 py-2 text-xs font-black text-sky-700 hover:text-sky-900">Buka Link</a>` : ""}
+                    </article>
+                  `).join("") : emptyState("Belum ada bahan untuk program ini.")}
+                </div>
+              </section>
+
+              <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-rose-700">Final Exam</p>
+                <h2 class="mt-2 text-2xl font-black text-slate-900">Edit Soalan & Jawapan</h2>
+                <p class="mt-2 text-sm font-semibold text-slate-500">Jawapan hanya disimpan di backend dan tidak dipaparkan dalam halaman exam pelajar.</p>
+
+                <div class="mt-5 grid gap-3 md:grid-cols-[1fr_1.4fr]">
+                  <select id="learnCourse" onchange="document.getElementById('learnProgram').value = Array.from(document.getElementById('learnProgram').options).find(o => o.value.startsWith(this.value === 'elektrik' ? 'F432' : 'IT-020'))?.value || document.getElementById('learnProgram').value; renderLecturerElearning();" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-rose-500">
+                    ${[...new Set(data.programs.map((program) => program.course))].map((course) => `<option value="${course}" ${course === selectedCourse ? "selected" : ""}>${course === "komputer" ? "Sistem Komputer" : "Pemasangan Elektrik"}</option>`).join("")}
+                  </select>
+                  <select id="learnQuestion" onchange="renderLecturerElearning()" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-rose-500">
+                    ${questions.map((item, index) => `<option value="${item.id}" ${item.id === selectedQuestionId ? "selected" : ""}>${index + 1}. ${escapeHTML(item.module || "Soalan")} - ${escapeHTML(item.id)}</option>`).join("")}
+                  </select>
+                </div>
+
+                <div class="mt-5 grid gap-3">
+                  <input id="questionModule" value="${escapeHTML(selectedQuestion.module || "")}" placeholder="Modul / type kemahiran" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-rose-500" />
+                  <textarea id="questionText" rows="4" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-rose-500">${escapeHTML(selectedQuestion.question || "")}</textarea>
+                  ${(selectedQuestion.options || ["", "", "", ""]).map((option, index) => `
+                    <input id="questionOption${index}" value="${escapeHTML(option)}" placeholder="Pilihan ${String.fromCharCode(65 + index)}" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-rose-500" />
+                  `).join("")}
+                  <select id="questionAnswer" class="rounded-2xl border border-slate-200 px-4 py-3 font-black outline-none focus:border-rose-500">
+                    ${["A", "B", "C", "D"].map((letter) => `<option value="${letter}" ${letter === selectedQuestion.answer ? "selected" : ""}>Jawapan Betul: ${letter}</option>`).join("")}
+                  </select>
+                  <button onclick="saveElearningQuestion('${selectedCourse}', '${selectedQuestionId}')" class="rounded-2xl bg-rose-700 px-5 py-3 text-sm font-black text-white">Simpan Soalan Final Exam</button>
+                </div>
+              </section>
+            </div>
+          `
+        ), "lecturer-elearning");
+      } catch (e) {
+        layout(emptyState("Gagal memuatkan E-Learning Manager: " + escapeHTML(e.message)), "lecturer-elearning");
+      }
+    }
+
+    async function saveElearningMaterial() {
+      await api("/api/lecturer/elearning/materials", {
+        method: "POST",
+        body: JSON.stringify({
+          program_code: document.getElementById("learnProgram").value,
+          title: document.getElementById("materialTitle").value,
+          type: document.getElementById("materialType").value,
+          link: document.getElementById("materialLink").value,
+          content: document.getElementById("materialContent").value,
+        }),
+      });
+      renderLecturerElearning();
+    }
+
+    async function saveElearningQuestion(course, questionId) {
+      await api("/api/lecturer/elearning/questions", {
+        method: "POST",
+        body: JSON.stringify({
+          course,
+          question_id: questionId,
+          module: document.getElementById("questionModule").value,
+          question: document.getElementById("questionText").value,
+          options: [0, 1, 2, 3].map((index) => document.getElementById(`questionOption${index}`).value),
+          answer: document.getElementById("questionAnswer").value,
+        }),
+      });
+      alert("✅ Soalan final exam berjaya dikemas kini.");
+      renderLecturerElearning();
+    }
+
     async function renderNotifications() {
       try {
         const rows = await api("/api/notifications");
@@ -1418,24 +1728,76 @@
       layout(`
         <h1 class="text-3xl font-bold text-slate-900">AI Chatbot</h1>
         <div class="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div id="chatLog" class="min-h-48 space-y-3 rounded-2xl bg-slate-50 p-4 text-slate-700"></div>
+          <div id="chatLog" class="max-h-[28rem] min-h-64 space-y-3 overflow-y-auto rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
+            <div class="max-w-2xl rounded-2xl rounded-tl-none border border-slate-200 bg-white p-4 font-semibold text-slate-800 shadow-sm">
+              Hai, saya Haza AI. Tanya apa sahaja tentang pelajaran, komputer, elektrik, portal, atau soalan umum.
+            </div>
+          </div>
           <div class="mt-4 flex gap-3">
-            <input id="chatInput" placeholder="Tanya tentang program, exam, kehadiran..." class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
-            <button onclick="sendChat()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Hantar</button>
+            <input id="chatInput" onkeydown="if(event.key === 'Enter') sendChat()" placeholder="Tanya apa sahaja..." class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500" />
+            <button id="chatSendBtn" onclick="sendChat()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">Hantar</button>
           </div>
         </div>
       `, "chatbot");
     }
 
+    function addChatBubble(text, sender = "assistant") {
+      const log = document.getElementById("chatLog");
+      const bubble = document.createElement("div");
+      bubble.className = sender === "user"
+        ? "ml-auto max-w-2xl whitespace-pre-wrap rounded-2xl rounded-tr-none bg-slate-900 p-4 font-semibold text-white shadow-sm"
+        : "max-w-2xl whitespace-pre-wrap rounded-2xl rounded-tl-none border border-slate-200 bg-white p-4 font-semibold text-slate-800 shadow-sm";
+      bubble.textContent = text;
+      log.appendChild(bubble);
+      log.scrollTop = log.scrollHeight;
+      return bubble;
+    }
+
+    function getPortalChatContext() {
+      return [
+        `Portal: ${PORTAL_MODE}`,
+        `Nama pengguna: ${currentUser?.name || "Pengguna"}`,
+        `Role: ${currentUser?.role || "-"}`,
+        `Program: ${currentUser?.program || "-"}`,
+      ].join("\n");
+    }
+
     async function sendChat() {
       const input = document.getElementById("chatInput");
-      const log = document.getElementById("chatLog");
+      const sendBtn = document.getElementById("chatSendBtn");
       const message = input.value.trim();
       if (!message) return;
-      log.innerHTML += `<p><strong>Anda:</strong> ${escapeHTML(message)}</p>`;
+
+      addChatBubble(message, "user");
       input.value = "";
-      const data = await api("/api/chatbot", { method: "POST", body: JSON.stringify({ message }) });
-      log.innerHTML += `<p><strong>MiCoST AI:</strong> ${escapeHTML(data.reply)}</p>`;
+      input.disabled = true;
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Berfikir...";
+      const thinkingBubble = addChatBubble("Haza AI sedang berfikir...", "assistant");
+
+      try {
+        const data = await api("/api/chatbot", {
+          method: "POST",
+          body: JSON.stringify({
+            message,
+            pageContext: getPortalChatContext(),
+            history: portalChatHistory,
+          }),
+        });
+        const reply = data.reply || "Maaf, saya belum dapat jawab soalan itu sekarang.";
+        thinkingBubble.textContent = data.fallback
+          ? `${reply}\n\nNota: AI live belum aktif pada server, jadi jawapan ini guna mode fallback MiCoSTSkills.`
+          : reply;
+        portalChatHistory.push({ role: "user", content: message }, { role: "assistant", content: reply });
+        portalChatHistory.splice(0, Math.max(0, portalChatHistory.length - 12));
+      } catch (error) {
+        thinkingBubble.textContent = error.message || "Gagal berhubung dengan Haza AI.";
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Hantar";
+        input.focus();
+      }
     }
 
     async function renderAdmin() {

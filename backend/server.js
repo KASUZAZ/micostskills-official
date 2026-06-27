@@ -5,11 +5,13 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const { execFile } = require("child_process");
+const { getExamQuestions } = require("./elearning-question-bank");
+const { createAppStorage } = require("./storage");
 
 function loadLocalEnv() {
   const envPath = [
     path.join(__dirname, ".env"),
-    path.join(__dirname, "miraai.env"),
+    path.join(__dirname, "hazaai.env"),
     path.join(__dirname, "..", ".env"),
   ]
     .find((filePath) => fs.existsSync(filePath));
@@ -38,9 +40,14 @@ const BACKEND_DIR = __dirname;
 const PROJECT_DIR = path.resolve(BACKEND_DIR, "..");
 const FRONTEND_DIR = path.join(PROJECT_DIR, "frontend", "public");
 const DATA_FILE = path.join(BACKEND_DIR, "data", "local-data.json");
+const STUDENT_REGISTRY_FILE = path.join(BACKEND_DIR, "data", "student-registry.json");
+const LECTURER_REGISTRY_FILE = path.join(BACKEND_DIR, "data", "lecturer-registry.json");
 const JWT_SECRET = process.env.JWT_SECRET || "MICOSTSKILLS_LOCAL_DEV_SECRET";
-const MICOST_WIFI_SSID = "@MiCoSTHotspotD_2n3";
+const MICOST_WIFI_SSID = "@MiCoSTHotSpotD_2n3";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const ZAPIER_CHAT_WEBHOOK_URL = process.env.ZAPIER_CHAT_WEBHOOK_URL || "";
+const ZAPIER_CHATBOT_URL = process.env.ZAPIER_CHATBOT_URL || "";
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || "")
   .split(",")
   .map((origin) => origin.trim())
@@ -102,6 +109,13 @@ const PROGRAM_CATALOG = [
   },
 ];
 
+const VISITOR_TTL_MS = 35000;
+const liveVisitors = new Map();
+const liveVisitorClients = new Set();
+const liveVisitorEvents = [];
+let liveVisitorTotalToday = 0;
+let liveVisitorDateKey = new Date().toISOString().slice(0, 10);
+
 app.use(cors({
   origin(origin, callback) {
     if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) {
@@ -114,6 +128,116 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.use((req, res, next) => {
+  const host = String(req.headers.host || "").toLowerCase();
+  const shouldUseProductionHost = (req.method === "GET" || req.method === "HEAD")
+    && host.startsWith("micostskills-git-")
+    && host.endsWith(".vercel.app");
+
+  if (!shouldUseProductionHost) {
+    next();
+    return;
+  }
+
+  res.redirect(308, `https://micostskills.vercel.app${req.originalUrl || "/"}`);
+});
+
+app.use(async (_req, res, next) => {
+  try {
+    await storageReady;
+    next();
+  } catch (error) {
+    res.status(503).json({ error: "Database belum bersedia.", detail: error.message });
+  }
+});
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function resetLiveVisitorDailyCountIfNeeded() {
+  const todayKey = getTodayKey();
+  if (todayKey !== liveVisitorDateKey) {
+    liveVisitorDateKey = todayKey;
+    liveVisitorTotalToday = liveVisitors.size;
+    liveVisitorEvents.length = 0;
+  }
+}
+
+function sanitizeVisitorPath(pathValue) {
+  const text = String(pathValue || "/").trim();
+  if (!text || text.length > 160) return "/";
+  return text.startsWith("/") ? text : "/";
+}
+
+function visitorLabel(sessionId) {
+  const id = String(sessionId || "");
+  let hash = 0;
+  for (let index = 0; index < id.length; index += 1) {
+    hash = (hash * 31 + id.charCodeAt(index)) % 9000;
+  }
+  return `Pelawat ${String(hash + 1000).slice(-4)}`;
+}
+
+function addLiveVisitorEvent(type, visitor) {
+  liveVisitorEvents.unshift({
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    type,
+    label: visitor.label,
+    path: visitor.path,
+    at: now(),
+  });
+
+  liveVisitorEvents.splice(24);
+}
+
+function liveVisitorSummary() {
+  resetLiveVisitorDailyCountIfNeeded();
+  pruneInactiveVisitors();
+
+  const pageCounts = Array.from(liveVisitors.values()).reduce((counts, visitor) => {
+    counts[visitor.path] = (counts[visitor.path] || 0) + 1;
+    return counts;
+  }, {});
+
+  return {
+    active: liveVisitors.size,
+    totalToday: liveVisitorTotalToday,
+    updatedAt: now(),
+    pages: Object.entries(pageCounts)
+      .map(([pathName, count]) => ({ path: pathName, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6),
+    events: liveVisitorEvents.slice(0, 12),
+  };
+}
+
+function sendLiveVisitorUpdate() {
+  const payload = `data: ${JSON.stringify(liveVisitorSummary())}\n\n`;
+  liveVisitorClients.forEach((client) => {
+    client.write(payload);
+  });
+}
+
+function pruneInactiveVisitors() {
+  const cutoff = Date.now() - VISITOR_TTL_MS;
+  let changed = false;
+
+  liveVisitors.forEach((visitor, sessionId) => {
+    if (visitor.lastSeen < cutoff) {
+      liveVisitors.delete(sessionId);
+      addLiveVisitorEvent("keluar", visitor);
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    setTimeout(sendLiveVisitorUpdate, 0);
+  }
+}
+
+setInterval(pruneInactiveVisitors, 10000).unref();
+
 function emptyStore() {
   return {
     users: [],
@@ -121,24 +245,127 @@ function emptyStore() {
     attendance: [],
     exams: [],
     results: [],
+    elearning_materials: [],
+    elearning_question_overrides: {},
     finance_accounts: [],
     cms_pages: [],
     notifications: [],
   };
 }
 
+const appStorage = createAppStorage({ dataFile: DATA_FILE, emptyStore });
+const storageReady = appStorage.init();
+
 function readStore() {
+  return appStorage.read();
+}
+
+function readStudentRegistry() {
   try {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
-    return { ...emptyStore(), ...data };
+    const registry = JSON.parse(fs.readFileSync(STUDENT_REGISTRY_FILE, "utf8"));
+    return Array.isArray(registry) ? registry : [];
   } catch {
-    return emptyStore();
+    return [];
   }
 }
 
+function readLecturerRegistry() {
+  try {
+    const registry = JSON.parse(fs.readFileSync(LECTURER_REGISTRY_FILE, "utf8"));
+    return Array.isArray(registry) ? registry : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeName(value = "") {
+  return String(value)
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9/ @'-]/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+function normalizeIc(value = "") {
+  const digits = String(value).replace(/\D/g, "");
+  return digits.length === 11 ? `0${digits}` : digits;
+}
+
+function formatIc(value = "") {
+  const digits = normalizeIc(value);
+  if (digits.length !== 12) return digits;
+  return `${digits.slice(0, 6)}-${digits.slice(6, 8)}-${digits.slice(8)}`;
+}
+
+function verifyStudentRegistry(name, ic) {
+  const requestedName = normalizeName(name);
+  const requestedIc = normalizeIc(ic);
+
+  if (!requestedName || !requestedIc) {
+    return { ok: false, error: "Nama penuh dan No Kad Pengenalan diperlukan untuk pengesahan pelajar." };
+  }
+
+  if (requestedIc.length !== 12) {
+    return { ok: false, error: "No Kad Pengenalan mesti mengandungi 12 digit." };
+  }
+
+  const registry = readStudentRegistry();
+  const match = registry.find((student) => normalizeIc(student.ic) === requestedIc);
+
+  if (!match) {
+    return {
+      ok: false,
+      error: "No Kad Pengenalan ini tiada dalam senarai pelajar rasmi MiCoSTSkills. Sila hubungi admin untuk semakan.",
+    };
+  }
+
+  const officialName = normalizeName(match.name);
+  const nameMatches = officialName === requestedName
+    || officialName.includes(requestedName)
+    || requestedName.includes(officialName);
+
+  if (!nameMatches) {
+    return {
+      ok: false,
+      error: "Nama penuh tidak sepadan dengan No Kad Pengenalan dalam rekod rasmi MiCoSTSkills.",
+    };
+  }
+
+  return {
+    ok: true,
+    student: {
+      ...match,
+      name: officialName,
+      ic: formatIc(match.ic),
+      program: match.program || "",
+      batch: match.batch || "",
+    },
+  };
+}
+
+function verifyLecturerRegistry(name) {
+  const requestedName = normalizeName(name);
+  const registry = readLecturerRegistry();
+  const match = registry.find((lecturer) => normalizeName(lecturer.name) === requestedName);
+
+  if (!match) {
+    return {
+      ok: false,
+      error: "Akaun pensyarah ini tiada dalam senarai pensyarah rasmi yang dibenarkan akses Lecturer Portal.",
+    };
+  }
+
+  return {
+    ok: true,
+    lecturer: {
+      ...match,
+      name: normalizeName(match.name),
+    },
+  };
+}
+
 function writeStore(store) {
-  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-  fs.writeFileSync(DATA_FILE, `${JSON.stringify(store, null, 2)}\n`);
+  return appStorage.write(store);
 }
 
 function nextId(items) {
@@ -217,6 +444,10 @@ function studentOnly(req, res, next) {
   next();
 }
 
+function sameSsid(current, required) {
+  return String(current || "").trim().toLowerCase() === String(required || "").trim().toLowerCase();
+}
+
 function getWifiStatus() {
   return new Promise((resolve) => {
     if (process.platform !== "win32") {
@@ -245,12 +476,13 @@ function getWifiStatus() {
         .map((line) => line.trim())
         .find((line) => /^SSID\s+:/i.test(line));
       const ssid = ssidLine ? ssidLine.split(":").slice(1).join(":").trim() : "";
+      const allowed = sameSsid(ssid, MICOST_WIFI_SSID);
 
       resolve({
-        allowed: ssid === MICOST_WIFI_SSID,
+        allowed,
         ssid,
         required: MICOST_WIFI_SSID,
-        message: ssid === MICOST_WIFI_SSID
+        message: allowed
           ? "WiFi MiCoST disahkan."
           : `Sila sambung ke WiFi ${MICOST_WIFI_SSID} untuk tanda kehadiran.`,
       });
@@ -262,7 +494,69 @@ function withUser(rows, store) {
   return rows.map((row) => ({
     ...row,
     name: store.users.find((user) => user.id === row.user_id)?.name || "Pelajar",
+    program: store.users.find((user) => user.id === row.user_id)?.program || "",
   }));
+}
+
+function allProgramCodes() {
+  return PROGRAM_CATALOG.map((program) => program.code);
+}
+
+function normalizeProgramCodes(values = []) {
+  const codes = Array.isArray(values) ? values : [values];
+  return [...new Set(codes
+    .map((value) => String(value || "").trim())
+    .map((value) => PROGRAM_CATALOG.find((program) => value.includes(program.code))?.code || value)
+    .filter((value) => PROGRAM_CATALOG.some((program) => program.code === value)))];
+}
+
+function lecturerProgramCodes(user = {}) {
+  const selected = normalizeProgramCodes(user.teaching_programs || []);
+  return selected.length ? selected : allProgramCodes();
+}
+
+function canLecturerAccessProgram(user, programCode) {
+  if (user.role === "admin") return true;
+  return lecturerProgramCodes(user).includes(programCode);
+}
+
+function courseForProgramCode(programCode = "") {
+  return String(programCode).startsWith("F432") ? "elektrik" : "komputer";
+}
+
+function lecturerCourses(user = {}) {
+  return [...new Set(lecturerProgramCodes(user).map(courseForProgramCode))];
+}
+
+function applyQuestionOverrides(course, store) {
+  const overrides = store.elearning_question_overrides?.[course] || {};
+  return getExamQuestions(course).map((question) => {
+    const patch = overrides[question.id] || {};
+    return {
+      ...question,
+      ...patch,
+      id: question.id,
+      options: Array.isArray(patch.options) && patch.options.length === 4 ? patch.options : question.options,
+      answer: String(patch.answer || question.answer || "").toUpperCase(),
+    };
+  });
+}
+
+function publicQuestionsFromItems(questions = []) {
+  return questions.map(({ answer, ...question }) => question);
+}
+
+function gradeExamItems(questions = [], answers = {}) {
+  const total = questions.length;
+  const correct = questions.reduce((count, question) => {
+    return count + (String(answers[question.id] || "").toUpperCase() === String(question.answer || "").toUpperCase() ? 1 : 0);
+  }, 0);
+
+  return {
+    total,
+    correct,
+    score: total ? Math.round((correct / total) * 100) : 0,
+  };
 }
 
 function calculateFinanceAccount(account = {}) {
@@ -306,32 +600,89 @@ function financeAccountForUser(store, userId) {
 
 app.post("/api/register", async (req, res) => {
   const { name, email, password, program, profile } = req.body || {};
+  const ic = req.body?.ic || profile?.ic || "";
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: "Sila lengkapkan nama, email dan password." });
+  if (!name || !email || !password || !ic) {
+    return res.status(400).json({ error: "Sila lengkapkan nama, No Kad Pengenalan, email dan password." });
   }
 
   const store = readStore();
   const normalizedEmail = String(email).trim().toLowerCase();
+  const registryCheck = verifyStudentRegistry(name, ic);
+
+  if (!registryCheck.ok) {
+    return res.status(403).json({ error: registryCheck.error });
+  }
 
   if (store.users.some((user) => user.email.toLowerCase() === normalizedEmail)) {
     return res.status(400).json({ error: "Email sudah didaftarkan." });
   }
 
+  const requestedIc = normalizeIc(ic);
+  if (store.users.some((user) => user.role === "student" && normalizeIc(user.profile?.ic) === requestedIc)) {
+    return res.status(400).json({ error: "No Kad Pengenalan ini sudah mempunyai akaun pelajar." });
+  }
+
   const user = {
     id: nextId(store.users),
-    name: String(name).trim(),
+    name: registryCheck.student.name,
     email: normalizedEmail,
     password: await bcrypt.hash(password, 10),
     role: "student",
-    program: program || "Program belum ditetapkan",
-    profile: profile || {},
+    program: registryCheck.student.program || program || "Program belum ditetapkan",
+    profile: {
+      ...(profile || {}),
+      ic: registryCheck.student.ic,
+      batch: registryCheck.student.batch,
+      verified_registry: true,
+      verified_at: now(),
+    },
     created_at: now(),
   };
 
   store.users.push(user);
   writeStore(store);
   res.json({ success: true, message: "Akaun pelajar berjaya didaftarkan." });
+});
+
+app.post("/api/lecturer/register", async (req, res) => {
+  const { name, email, password } = req.body || {};
+  const teachingPrograms = normalizeProgramCodes(req.body?.teaching_programs || req.body?.programs || []);
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: "Sila lengkapkan nama, email dan password pensyarah." });
+  }
+
+  if (!teachingPrograms.length) {
+    return res.status(400).json({ error: "Pilih sekurang-kurangnya satu program yang diajar." });
+  }
+
+  const registryCheck = verifyLecturerRegistry(name);
+  if (!registryCheck.ok) {
+    return res.status(403).json({ error: registryCheck.error });
+  }
+
+  const store = readStore();
+  const normalizedEmail = String(email).trim().toLowerCase();
+  if (store.users.some((user) => user.email.toLowerCase() === normalizedEmail)) {
+    return res.status(400).json({ error: "Email sudah didaftarkan." });
+  }
+
+  const user = {
+    id: nextId(store.users),
+    name: registryCheck.lecturer.name,
+    email: normalizedEmail,
+    password: await bcrypt.hash(password, 10),
+    role: "lecturer",
+    program: "Lecturer Portal",
+    teaching_programs: teachingPrograms,
+    department: registryCheck.lecturer.department || "MiCoSTSkills",
+    created_at: now(),
+  };
+
+  store.users.push(user);
+  writeStore(store);
+  res.json({ success: true, message: "Akaun lecturer berjaya didaftarkan. Sila log masuk." });
 });
 
 app.post("/api/login", async (req, res) => {
@@ -343,6 +694,17 @@ app.post("/api/login", async (req, res) => {
     return res.status(401).json({ error: "Email atau password tidak sah." });
   }
 
+  if (user.role === "lecturer") {
+    const registryCheck = verifyLecturerRegistry(user.name);
+    if (!registryCheck.ok) {
+      return res.status(403).json({ error: registryCheck.error });
+    }
+    user.name = registryCheck.lecturer.name;
+    user.department = user.department || registryCheck.lecturer.department || "MiCoSTSkills";
+    user.teaching_programs = normalizeProgramCodes(user.teaching_programs || registryCheck.lecturer.teaching_programs || []);
+    if (!user.teaching_programs.length) user.teaching_programs = allProgramCodes();
+  }
+
   res.json({ token: signUser(user), user: publicUser(user) });
 });
 
@@ -350,7 +712,76 @@ app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     app: "MiCoSTSkills Enterprise",
+    storage: appStorage.status(),
     time: now(),
+  });
+});
+
+app.get("/api/chat-config", (_req, res) => {
+  res.json({
+    provider: ZAPIER_CHATBOT_URL ? "zapier-chatbot" : ZAPIER_CHAT_WEBHOOK_URL ? "zapier-webhook" : "backend-ai",
+    zapierChatbotUrl: ZAPIER_CHATBOT_URL,
+  });
+});
+
+app.get("/api/live-visitors", (_req, res) => {
+  res.json(liveVisitorSummary());
+});
+
+app.post("/api/live-visitors/heartbeat", (req, res) => {
+  resetLiveVisitorDailyCountIfNeeded();
+
+  const sessionId = String(req.body?.sessionId || "").trim().slice(0, 80);
+  if (!sessionId) {
+    return res.status(400).json({ error: "sessionId diperlukan." });
+  }
+
+  const pathName = sanitizeVisitorPath(req.body?.path);
+  const existingVisitor = liveVisitors.get(sessionId);
+
+  if (!existingVisitor) {
+    const visitor = {
+      label: visitorLabel(sessionId),
+      path: pathName,
+      firstSeen: Date.now(),
+      lastSeen: Date.now(),
+    };
+    liveVisitors.set(sessionId, visitor);
+    liveVisitorTotalToday += 1;
+    addLiveVisitorEvent("masuk", visitor);
+    sendLiveVisitorUpdate();
+    return res.json(liveVisitorSummary());
+  }
+
+  existingVisitor.path = pathName;
+  existingVisitor.lastSeen = Date.now();
+  res.json(liveVisitorSummary());
+});
+
+app.post("/api/live-visitors/leave", (req, res) => {
+  const sessionId = String(req.body?.sessionId || "").trim().slice(0, 80);
+  const visitor = liveVisitors.get(sessionId);
+
+  if (visitor) {
+    liveVisitors.delete(sessionId);
+    addLiveVisitorEvent("keluar", visitor);
+    sendLiveVisitorUpdate();
+  }
+
+  res.json(liveVisitorSummary());
+});
+
+app.get("/api/live-visitors/stream", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+
+  liveVisitorClients.add(res);
+  res.write(`data: ${JSON.stringify(liveVisitorSummary())}\n\n`);
+
+  req.on("close", () => {
+    liveVisitorClients.delete(res);
   });
 });
 
@@ -358,7 +789,7 @@ app.get("/api/me", auth, (req, res) => {
   res.json(req.user);
 });
 
-app.put("/api/me/profile", auth, (req, res) => {
+app.put("/api/me/profile", auth, async (req, res) => {
   if (req.user.role !== "student") {
     return res.status(403).json({ error: "Pelajar sahaja boleh mengemaskini maklumat pelajar." });
   }
@@ -379,7 +810,11 @@ app.put("/api/me/profile", auth, (req, res) => {
     user.program = req.body.program;
   }
 
-  writeStore(store);
+  const saveResult = await writeStore(store);
+  if (saveResult && saveResult.ok === false) {
+    return res.status(500).json({ error: "Gagal simpan maklumat ke database. Sila cuba semula." });
+  }
+
   res.json({ success: true, user: publicUser(user), token: signUser(user) });
 });
 
@@ -443,6 +878,38 @@ app.get("/api/finance/summary", auth, lecturerOnly, (_req, res) => {
 app.get("/api/users", auth, adminOnly, (_req, res) => {
   const store = readStore();
   res.json(store.users.map(publicUser).sort((a, b) => b.id - a.id));
+});
+
+app.get("/api/student-registry/summary", auth, adminOnly, (_req, res) => {
+  const registry = readStudentRegistry();
+  const byBatch = registry.reduce((summary, student) => {
+    const batch = student.batch || "Tanpa Batch";
+    summary[batch] = (summary[batch] || 0) + 1;
+    return summary;
+  }, {});
+  const byProgram = registry.reduce((summary, student) => {
+    const program = student.program || "Program belum diset";
+    summary[program] = (summary[program] || 0) + 1;
+    return summary;
+  }, {});
+
+  res.json({
+    total: registry.length,
+    byBatch,
+    byProgram,
+  });
+});
+
+app.get("/api/lecturer-registry/summary", auth, adminOnly, (_req, res) => {
+  const registry = readLecturerRegistry();
+  res.json({
+    total: registry.length,
+    lecturers: registry.map((lecturer) => ({
+      name: normalizeName(lecturer.name),
+      email: lecturer.email || "",
+      department: lecturer.department || "MiCoSTSkills",
+    })),
+  });
 });
 
 app.get("/api/courses", auth, (_req, res) => {
@@ -606,6 +1073,22 @@ app.get("/api/elearning/me", auth, studentOnly, (req, res) => {
   });
 });
 
+app.get("/api/elearning/materials", (_req, res) => {
+  const store = readStore();
+  const course = String(_req.query.course || "").toLowerCase();
+  const programCode = String(_req.query.program_code || "").trim();
+  const rows = store.elearning_materials
+    .filter((item) => {
+      if (programCode) return item.program_code === programCode;
+      if (course) return item.course === course;
+      return true;
+    })
+    .map(({ lecturer_id, ...item }) => item)
+    .sort((a, b) => b.id - a.id);
+
+  res.json({ materials: rows });
+});
+
 app.get("/api/elearning/leaderboard", auth, (req, res) => {
   const store = readStore();
   const course = String(req.query.course || "").toLowerCase();
@@ -626,6 +1109,22 @@ app.get("/api/elearning/leaderboard", auth, (req, res) => {
   res.json({ top: rows[0] || null, rows: rows.slice(0, 10) });
 });
 
+app.get("/api/elearning/final-exam/:course/questions", (req, res) => {
+  const course = String(req.params.course || "").toLowerCase();
+  if (!["komputer", "elektrik"].includes(course)) {
+    return res.status(400).json({ error: "Kursus e-learning tidak sah." });
+  }
+  const store = readStore();
+  const questions = applyQuestionOverrides(course, store);
+
+  res.json({
+    course,
+    title: finalExamTitle(course),
+    total: questions.length,
+    questions: publicQuestionsFromItems(questions),
+  });
+});
+
 app.post("/api/elearning/final-exam/:course/submit", auth, studentOnly, (req, res) => {
   const course = String(req.params.course || "").toLowerCase();
   if (!["komputer", "elektrik"].includes(course)) {
@@ -633,19 +1132,10 @@ app.post("/api/elearning/final-exam/:course/submit", auth, studentOnly, (req, re
   }
 
   const answers = req.body?.answers || {};
-  const correctAnswers = req.body?.correctAnswers || {};
-  const total = Math.min(60, Object.keys(correctAnswers).length || 60);
-  let correct = 0;
-
-  Object.keys(correctAnswers).slice(0, 60).forEach((key) => {
-    if (String(answers[key] || "") === String(correctAnswers[key] || "")) {
-      correct += 1;
-    }
-  });
-
-  const score = Math.round((correct / total) * 100);
-  const certId = certificateId(req.user.id, course);
   const store = readStore();
+  const { total, correct, score } = gradeExamItems(applyQuestionOverrides(course, store), answers);
+  const passed = score >= 60;
+  const certId = passed ? certificateId(req.user.id, course) : "";
   const result = {
     id: nextId(store.results),
     user_id: req.user.id,
@@ -656,7 +1146,7 @@ app.post("/api/elearning/final-exam/:course/submit", auth, studentOnly, (req, re
     correct,
     total_questions: total,
     certificate_id: certId,
-    status: score >= 60 ? "Lulus" : "Perlu Ulang",
+    status: passed ? "Lulus" : "Perlu Ulang",
     created_at: now(),
   };
 
@@ -677,10 +1167,15 @@ app.get("/api/programs", auth, (_req, res) => {
   res.json(PROGRAM_CATALOG);
 });
 
-app.get("/api/lecturer/students", auth, lecturerOnly, (_req, res) => {
+app.get("/api/lecturer/students", auth, lecturerOnly, (req, res) => {
   const store = readStore();
   res.json(store.users
     .filter((user) => user.role === "student")
+    .filter((user) => {
+      if (req.user.role === "admin") return true;
+      const program = programFor(user.program);
+      return program ? canLecturerAccessProgram(req.user, program.code) : true;
+    })
     .map((user) => {
       const program = programFor(user.program);
       return {
@@ -696,6 +1191,201 @@ app.get("/api/lecturer/students", auth, lecturerOnly, (_req, res) => {
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name)));
+});
+
+app.get("/api/lecturer/attendance-sheet", auth, lecturerOnly, (req, res) => {
+  const store = readStore();
+  const requestedProgram = String(req.query.program_code || "").trim();
+  const programCode = PROGRAM_CATALOG.some((program) => program.code === requestedProgram)
+    ? requestedProgram
+    : lecturerProgramCodes(req.user)[0];
+
+  if (!programCode || !canLecturerAccessProgram(req.user, programCode)) {
+    return res.status(403).json({ error: "Program ini bukan dalam senarai program yang diajar." });
+  }
+
+  const weekStart = String(req.query.week_start || today()).slice(0, 10);
+  const startDate = new Date(`${weekStart}T00:00:00`);
+  if (Number.isNaN(startDate.getTime())) {
+    return res.status(400).json({ error: "Tarikh minggu tidak sah." });
+  }
+
+  const days = Array.from({ length: 5 }, (_, index) => {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + index);
+    const iso = date.toISOString().slice(0, 10);
+    return {
+      date: iso,
+      day: date.toLocaleDateString("ms-MY", { weekday: "long" }),
+      label: date.toLocaleDateString("ms-MY", { day: "2-digit", month: "2-digit", year: "2-digit" }),
+    };
+  });
+
+  const students = store.users
+    .filter((user) => user.role === "student" && programFor(user.program)?.code === programCode)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((student, index) => {
+      const cells = {};
+      days.forEach((day) => {
+        ["PG", "PTG"].forEach((session) => {
+          const row = store.attendance.find((item) => item.user_id === student.id && item.date === day.date && (item.session || "PG") === session);
+          cells[`${day.date}-${session}`] = {
+            status: row?.status || "",
+            note: row?.note || "",
+          };
+        });
+      });
+
+      return {
+        bil: index + 1,
+        id: student.id,
+        name: student.name,
+        ic: student.profile?.ic || "",
+        program: student.program,
+        cells,
+      };
+    });
+
+  res.json({
+    program: PROGRAM_CATALOG.find((program) => program.code === programCode),
+    programs: PROGRAM_CATALOG.filter((program) => canLecturerAccessProgram(req.user, program.code)),
+    week_start: weekStart,
+    lecturer: req.user.name,
+    batch: req.query.batch || "",
+    days,
+    students,
+  });
+});
+
+app.post("/api/lecturer/attendance", auth, lecturerOnly, (req, res) => {
+  const { user_id, date, session, status, note } = req.body || {};
+  const store = readStore();
+  const student = store.users.find((user) => user.id === Number(user_id) && user.role === "student");
+  const program = programFor(student?.program || "");
+  const sessionValue = String(session || "PG").toUpperCase() === "PTG" ? "PTG" : "PG";
+  const dateValue = String(date || "").slice(0, 10);
+
+  if (!student || !program || !dateValue) {
+    return res.status(400).json({ error: "Pelajar dan tarikh diperlukan." });
+  }
+
+  if (!canLecturerAccessProgram(req.user, program.code)) {
+    return res.status(403).json({ error: "Pelajar ini bukan dalam program yang diajar oleh lecturer ini." });
+  }
+
+  const existing = store.attendance.find((row) => row.user_id === student.id && row.date === dateValue && (row.session || "PG") === sessionValue);
+  const payload = {
+    user_id: student.id,
+    date: dateValue,
+    session: sessionValue,
+    status: status || "Hadir",
+    note: note || "",
+    entered_by: req.user.id,
+    updated_at: now(),
+  };
+
+  if (existing) {
+    Object.assign(existing, payload);
+  } else {
+    store.attendance.push({
+      id: nextId(store.attendance),
+      ...payload,
+      created_at: now(),
+    });
+  }
+
+  writeStore(store);
+  res.json({ success: true, message: "Kehadiran berjaya dikemas kini." });
+});
+
+app.get("/api/lecturer/elearning", auth, lecturerOnly, (req, res) => {
+  const store = readStore();
+  const programs = PROGRAM_CATALOG
+    .filter((program) => canLecturerAccessProgram(req.user, program.code))
+    .map((program) => ({
+      ...program,
+      course: courseForProgramCode(program.code),
+    }));
+  const courses = lecturerCourses(req.user);
+
+  res.json({
+    programs,
+    materials: store.elearning_materials
+      .filter((item) => !item.program_code || canLecturerAccessProgram(req.user, item.program_code))
+      .sort((a, b) => b.id - a.id),
+    question_banks: Object.fromEntries(courses.map((course) => [course, applyQuestionOverrides(course, store)])),
+  });
+});
+
+app.post("/api/lecturer/elearning/materials", auth, lecturerOnly, (req, res) => {
+  const { id, program_code, title, type, content, link } = req.body || {};
+  const programCode = String(program_code || "").trim();
+
+  if (!title || !programCode) {
+    return res.status(400).json({ error: "Program dan tajuk bahan diperlukan." });
+  }
+
+  if (!canLecturerAccessProgram(req.user, programCode)) {
+    return res.status(403).json({ error: "Program ini bukan dalam senarai program yang diajar." });
+  }
+
+  const store = readStore();
+  const payload = {
+    program_code: programCode,
+    course: courseForProgramCode(programCode),
+    title: String(title).trim(),
+    type: type || "Nota",
+    content: content || "",
+    link: link || "",
+    lecturer_id: req.user.id,
+    updated_at: now(),
+  };
+  const existing = store.elearning_materials.find((item) => item.id === Number(id));
+
+  if (existing) {
+    Object.assign(existing, payload);
+  } else {
+    store.elearning_materials.push({
+      id: nextId(store.elearning_materials),
+      ...payload,
+      created_at: now(),
+    });
+  }
+
+  writeStore(store);
+  res.json({ success: true, message: "Bahan e-learning berjaya disimpan." });
+});
+
+app.post("/api/lecturer/elearning/questions", auth, lecturerOnly, (req, res) => {
+  const { course, question_id, module, question, options, answer } = req.body || {};
+  const courseKey = String(course || "").toLowerCase();
+  const questionId = String(question_id || "").trim();
+
+  if (!["komputer", "elektrik"].includes(courseKey) || !questionId) {
+    return res.status(400).json({ error: "Kursus dan ID soalan diperlukan." });
+  }
+
+  if (!lecturerCourses(req.user).includes(courseKey)) {
+    return res.status(403).json({ error: "Kursus ini bukan dalam program yang diajar oleh lecturer ini." });
+  }
+
+  const cleanOptions = Array.isArray(options) ? options.map((item) => String(item || "").trim()) : [];
+  if (!question || cleanOptions.length !== 4 || cleanOptions.some((item) => !item) || !["A", "B", "C", "D"].includes(String(answer || "").toUpperCase())) {
+    return res.status(400).json({ error: "Soalan, 4 pilihan jawapan dan jawapan A-D diperlukan." });
+  }
+
+  const store = readStore();
+  store.elearning_question_overrides[courseKey] = store.elearning_question_overrides[courseKey] || {};
+  store.elearning_question_overrides[courseKey][questionId] = {
+    module: module || "",
+    question: String(question).trim(),
+    options: cleanOptions,
+    answer: String(answer).toUpperCase(),
+    updated_by: req.user.id,
+    updated_at: now(),
+  };
+  writeStore(store);
+  res.json({ success: true, message: "Soalan final exam berjaya dikemas kini." });
 });
 
 app.post("/api/lecturer/results", auth, lecturerOnly, (req, res) => {
@@ -769,90 +1459,295 @@ app.post("/api/cms", auth, adminOnly, (req, res) => {
   res.json({ success: true });
 });
 
-app.post("/api/chatbot", auth, (req, res) => {
-  const message = String(req.body?.message || "").toLowerCase();
-  let reply = "Saya boleh bantu tentang program, kehadiran, exam dan dashboard MiCoSTSkills.";
+function getHazaFallbackReply(message) {
+  const text = String(message || "").toLowerCase();
 
-  if (message.includes("program")) reply = "Program utama ialah Sistem Komputer dan Pemasangan Elektrik berasaskan TVET/SKM.";
-  if (message.includes("attendance") || message.includes("kehadiran")) reply = "Untuk tanda kehadiran, buka menu Kehadiran dalam Student Portal.";
-  if (message.includes("exam") || message.includes("peperiksaan")) reply = "Online exam boleh dijawab melalui menu Online Exam.";
+  if (text.includes("program") || text.includes("kursus")) {
+    return "MiCoSTSkills menawarkan laluan TVET seperti Sistem Komputer dan Pemasangan Elektrik. Untuk semakan intake dan maklumat rasmi, hubungi urusetia melalui WhatsApp.";
+  }
 
-  res.json({ reply });
-});
+  if (text.includes("daftar") || text.includes("pendaftaran") || text.includes("apply")) {
+    return "Untuk pendaftaran, sediakan nama penuh, nombor telefon, program pilihan dan dokumen asas. Cara paling cepat ialah klik ikon WhatsApp hijau supaya urusetia boleh bantu langkah seterusnya.";
+  }
 
-app.post("/api/mira-ai", async (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  if (text.includes("lokasi") || text.includes("alamat") || text.includes("map")) {
+    return "Lokasi MiCoSTSkills ialah Lot 925, Blok C, Wisma Yayasan Melaka, Jalan Hang Tuah, 75300 Melaka.";
+  }
+
+  if (text.includes("syarat") || text.includes("kelayakan") || text.includes("spm")) {
+    return "Syarat kemasukan bergantung pada program dan tahap pengajian. Beritahu program yang diminati supaya urusetia boleh semak kelayakan rasmi anda.";
+  }
+
+  if (text.includes("elearning") || text.includes("e-learning") || text.includes("nota") || text.includes("quiz")) {
+    return "Untuk E-Learning, buka menu E-Learning di bahagian atas laman dan pilih portal atau bahan mengikut program Sistem Komputer atau Pemasangan Elektrik.";
+  }
+
+  return "Saya Haza AI, pembantu MiCoSTSkills. Saya boleh bantu tentang program, pendaftaran, lokasi, syarat kemasukan dan E-Learning. Untuk maklumat rasmi seperti yuran atau tarikh intake, hubungi urusetia melalui WhatsApp.";
+}
+
+function hazaSystemPrompt(user) {
+  const userContext = user
+    ? `\nPengguna portal: ${user.name || "Pengguna"} (${user.role || "user"}), program: ${user.program || "Umum"}.`
+    : "";
+
+  return [
+    "Nama anda Haza AI, pembantu rasmi MiCoSTSkills.",
+    "Jawab seperti pembantu AI umum yang pintar dan berguna: boleh bantu soalan pembelajaran, teknologi, kerjaya, penulisan, idea, dan penerangan konsep.",
+    "Gunakan Bahasa Melayu santai-profesional sebagai default, dan campur English bila pengguna guna English atau istilah teknikal.",
+    "Untuk hal MiCoSTSkills, bantu tentang program TVET, Sistem Komputer, Pemasangan Elektrik, pendaftaran, e-learning, lokasi, syarat kemasukan, exam, kehadiran, dan portal pelajar.",
+    "Jangan reka maklumat rasmi seperti yuran, tarikh intake, polisi, atau keputusan pelajar jika tiada konteks; minta pengguna hubungi urusetia WhatsApp untuk pengesahan rasmi.",
+    "Jika soalan memerlukan maklumat terkini yang anda tidak ada, jelaskan had tersebut dan cadangkan semakan rasmi.",
+    "Jawapan hendaklah jelas, mesra, dan terus kepada soalan.",
+    userContext,
+  ].join("\n");
+}
+
+function sanitizeConversation(messages) {
+  if (!Array.isArray(messages)) return [];
+
+  return messages
+    .slice(-10)
+    .map((item) => ({
+      role: item?.role === "assistant" ? "assistant" : "user",
+      content: String(item?.content || "").trim().slice(0, 1200),
+    }))
+    .filter((item) => item.content);
+}
+
+function buildAiUserContent(message, pageContext) {
+  return pageContext
+    ? `Konteks halaman MiCoSTSkills:\n${pageContext}\n\nSoalan pengguna:\n${message}`
+    : message;
+}
+
+async function askOpenAi({ message, pageContext = "", history = [], user = null }) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      temperature: 0.7,
+      max_tokens: 700,
+      messages: [
+        { role: "system", content: hazaSystemPrompt(user) },
+        ...sanitizeConversation(history),
+        { role: "user", content: buildAiUserContent(message, pageContext) },
+      ],
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error?.message || "OpenAI API gagal memberi respon.");
+  }
+
+  const reply = data.choices?.[0]?.message?.content?.trim();
+  if (!reply) throw new Error("OpenAI API tidak memulangkan jawapan.");
+
+  return { reply, model: OPENAI_MODEL, provider: "openai" };
+}
+
+async function askGemini({ message, pageContext = "", history = [], user = null }) {
+  const contents = sanitizeConversation(history).map((item) => ({
+    role: item.role === "assistant" ? "model" : "user",
+    parts: [{ text: item.content }],
+  }));
+
+  contents.push({
+    role: "user",
+    parts: [{ text: buildAiUserContent(message, pageContext) }],
+  });
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{ text: hazaSystemPrompt(user) }],
+        },
+        contents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 700,
+        },
+      }),
+    },
+  );
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error?.message || "Gemini API gagal memberi respon.");
+  }
+
+  const reply = data.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text || "")
+    .join("")
+    .trim();
+
+  if (!reply) throw new Error("Gemini API tidak memulangkan jawapan.");
+
+  return { reply, model: GEMINI_MODEL, provider: "gemini" };
+}
+
+function extractZapierReply(data) {
+  if (typeof data === "string") return data.trim();
+  if (!data || typeof data !== "object") return "";
+
+  const candidates = [
+    data.reply,
+    data.answer,
+    data.message,
+    data.text,
+    data.output,
+    data.response,
+    data.result,
+    data.data?.reply,
+    data.data?.answer,
+    data.data?.message,
+    data.data?.text,
+    data.data?.output,
+  ];
+
+  return candidates
+    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    .find(Boolean) || "";
+}
+
+async function askZapier({ message, pageContext = "", history = [], user = null }) {
+  if (!ZAPIER_CHAT_WEBHOOK_URL) {
+    throw new Error("ZAPIER_CHAT_WEBHOOK_URL belum ditetapkan.");
+  }
+
+  const response = await fetch(ZAPIER_CHAT_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message,
+      pageContext,
+      history: sanitizeConversation(history),
+      assistant: "Haza AI",
+      source: "micostskills-chatbox",
+      user: user ? publicUser(user) : null,
+      systemPrompt: hazaSystemPrompt(user),
+      requestedAt: now(),
+    }),
+  });
+
+  const rawText = await response.text();
+  let data = rawText;
+  try {
+    data = rawText ? JSON.parse(rawText) : {};
+  } catch {
+    data = rawText;
+  }
+
+  if (!response.ok) {
+    throw new Error(extractZapierReply(data) || "Zapier webhook gagal memberi respon.");
+  }
+
+  const reply = extractZapierReply(data);
+  if (!reply) {
+    throw new Error("Zapier webhook mesti pulangkan JSON dengan field reply, answer, message, text, output, response atau result.");
+  }
+
+  return { reply, model: "zapier-chatbot", provider: "zapier" };
+}
+
+async function getAiReply(payload) {
+  if (ZAPIER_CHAT_WEBHOOK_URL) {
+    return askZapier(payload);
+  }
+
+  if (process.env.OPENAI_API_KEY) {
+    return askOpenAi(payload);
+  }
+
+  if (process.env.GEMINI_API_KEY) {
+    return askGemini(payload);
+  }
+
+  return {
+    reply: getHazaFallbackReply(payload.message),
+    fallback: true,
+    model: "haza-local-fallback",
+    provider: "local",
+  };
+}
+
+app.post("/api/chatbot", auth, async (req, res) => {
   const message = String(req.body?.message || "").trim();
-  const pageContext = String(req.body?.pageContext || "").trim().slice(0, 2500);
 
   if (!message) {
     return res.status(400).json({ error: "Mesej diperlukan." });
   }
 
-  if (!apiKey) {
-    return res.status(503).json({
-      error: "GEMINI_API_KEY belum diset pada server.",
+  try {
+    res.json(await getAiReply({
+      message,
+      pageContext: String(req.body?.pageContext || "").trim().slice(0, 2500),
+      history: req.body?.history,
+      user: req.user,
+    }));
+  } catch (error) {
+    res.json({
+      reply: getHazaFallbackReply(message),
+      error: error.message || "Ralat server semasa menghubungi AI.",
       fallback: true,
+      model: "haza-local-fallback",
+      provider: "local",
     });
+  }
+});
+
+app.post("/api/haza-ai", async (req, res) => {
+  const message = String(req.body?.message || "").trim();
+
+  if (!message) {
+    return res.status(400).json({ error: "Mesej diperlukan." });
   }
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [
-              {
-                text:
-                  "Nama anda Mira AI, pembantu rasmi MiCoSTSkills. Jawab dalam Bahasa Melayu santai-profesional, boleh campur English bila sesuai. Fokus pada program TVET, Sistem Komputer, Pemasangan Elektrik, pendaftaran, e-learning, lokasi, syarat kemasukan, dan bantuan pelajar. Jangan reka maklumat rasmi seperti yuran, tarikh intake, atau polisi jika tidak diberi konteks; minta pengguna hubungi WhatsApp urusetia untuk pengesahan. Jawapan ringkas, jelas, dan mesra.",
-              },
-            ],
-          },
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: pageContext
-                    ? `Konteks halaman MiCoSTSkills:\n${pageContext}\n\nSoalan pengguna:\n${message}`
-                    : message,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 450,
-          },
-        }),
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.error?.message || "Gemini API gagal memberi respon.",
-        fallback: true,
-      });
-    }
-
-    const reply = data.candidates?.[0]?.content?.parts
-      ?.map((part) => part.text || "")
-      .join("")
-      .trim();
-
-    res.json({
-      reply: reply || "Maaf, Mira AI belum dapat jawab sekarang. Cuba tanya semula dengan lebih ringkas.",
-      model: GEMINI_MODEL,
-    });
+    res.json(await getAiReply({
+      message,
+      pageContext: String(req.body?.pageContext || "").trim().slice(0, 2500),
+      history: req.body?.history,
+    }));
   } catch (error) {
-    res.status(500).json({
-      error: error.message || "Ralat server semasa menghubungi Gemini API.",
+    res.json({
+      reply: getHazaFallbackReply(message),
+      error: error.message || "Ralat server semasa menghubungi AI.",
       fallback: true,
+      model: "haza-local-fallback",
+      provider: "local",
+    });
+  }
+});
+
+app.post("/api/mira-ai", async (req, res) => {
+  const message = String(req.body?.message || "").trim();
+
+  if (!message) {
+    return res.status(400).json({ error: "Mesej diperlukan." });
+  }
+
+  try {
+    res.json(await getAiReply({
+      message,
+      pageContext: String(req.body?.pageContext || "").trim().slice(0, 2500),
+      history: req.body?.history,
+    }));
+  } catch (error) {
+    res.json({
+      reply: getHazaFallbackReply(message),
+      error: error.message || "Ralat server semasa menghubungi AI.",
+      fallback: true,
+      model: "haza-local-fallback",
+      provider: "local",
     });
   }
 });
@@ -882,6 +1777,18 @@ app.use((_req, res) => {
   res.status(404).type("text/plain").send("Page not found");
 });
 
-app.listen(PORT, () => {
-  console.log(`MiCoSTSkills website ready at http://localhost:${PORT}`);
-});
+async function start() {
+  const storage = await storageReady;
+  app.listen(PORT, () => {
+    console.log(`MiCoSTSkills website ready at http://localhost:${PORT}`);
+    console.log(`Storage primary: ${storage.primary}`);
+  });
+}
+
+if (require.main === module) {
+  start().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+module.exports = app;

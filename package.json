@@ -13,6 +13,7 @@
     "smoke": "node tests/smoke.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "express": "^5.2.1",
@@ -20,7 +21,6 @@
   },
   "devDependencies": {
     "playwright": "^1.60.0",
-    "playwright": "^1.57.0",
     "tailwindcss": "^3.4.19"
   }
 }

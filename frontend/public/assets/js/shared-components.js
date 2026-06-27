@@ -10,6 +10,34 @@ function loadSharedComponents() {
   const adminPortalHref = isStaticPreview ? "./student.html?portal=admin" : `${portalOrigin}/admin-portal`;
   // 1. LOAD HEADER & NAVBAR WITH PREMIUM MICRO-INTERACTIONS
   const siteHeader = `
+    <style id="micost-shared-nav-fixes">
+      .nav-dropdown::after {
+        content: "";
+        position: absolute;
+        left: -0.5rem;
+        right: -0.5rem;
+        top: 100%;
+        height: 1rem;
+      }
+
+      .nav-dropdown .nav-dropdown-menu {
+        transition-delay: 220ms;
+      }
+
+      .nav-dropdown:hover .nav-dropdown-menu,
+      .nav-dropdown.is-open .nav-dropdown-menu,
+      .nav-dropdown:focus-within .nav-dropdown-menu {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+        transition-delay: 90ms;
+      }
+
+      .nav-dropdown.is-open svg {
+        transform: rotate(180deg);
+      }
+    </style>
+
     <header id="siteHeader" class="sticky top-0 z-50">
       <div class="top-bar bg-gradient-to-r from-red-600 via-slate-900 to-blue-600 text-slate-300 transition-transform duration-300 will-change-transform">
         <div class="top-bar-container">
@@ -19,10 +47,10 @@ function loadSharedComponents() {
             <span>✉️ info@micost.edu.my</span>
           </div>
           <div class="top-bar-social">
-            <a class="social-link hover:text-white transition duration-200" href="#">YouTube</a>
-            <a class="social-link hover:text-white transition duration-200" href="#">Facebook</a>
-            <a class="social-link hover:text-white transition duration-200" href="#">Instagram</a>
-            <a class="social-link hover:text-white transition duration-200" href="#">TikTok</a>
+            <a class="social-link hover:text-white transition duration-200" href="https://youtube.com/@micostofficial?si=Hn0hGUSd6GjgQJxT" target="_blank" rel="noopener noreferrer">YouTube</a>
+            <a class="social-link hover:text-white transition duration-200" href="https://facebook.com/micost.edu.my/?ref=bookmarks" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a class="social-link hover:text-white transition duration-200" href="https://www.instagram.com/micost.official/" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a class="social-link hover:text-white transition duration-200" href="https://www.tiktok.com/@micost.official" target="_blank" rel="noopener noreferrer">TikTok</a>
           </div>
         </div>
       </div>
@@ -45,11 +73,24 @@ function loadSharedComponents() {
             <a href="./org-chart.html" class="nav-link relative py-2 transition-colors hover:text-indigo-600 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-indigo-600 after:transition-all hover:after:w-full">Carta Organisasi</a>
             <a href="./convocation.html" class="nav-link relative py-2 transition-colors hover:text-indigo-600 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-indigo-600 after:transition-all hover:after:w-full">Konvokesyen</a>
 
-            <div class="relative group">
+            <div class="nav-dropdown relative group">
+              <button class="flex items-center gap-1 py-2 font-bold text-indigo-700 transition-colors hover:text-indigo-900">
+                TVET <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              <div class="nav-dropdown-menu absolute right-0 top-full mt-0 w-60 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                <a href="./tvet.html" class="block rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">Portal TVET</a>
+                <a href="./tvet.html#bidang" class="block rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">Senarai Bidang TVET</a>
+                <a href="./tvet.html#kerjaya" class="block rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">Laluan Kerjaya</a>
+                <a href="./tvet.html#pelan90" class="block rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">Pelan 90 Hari</a>
+                <a href="./tvet.html#rujukan" class="block rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">PDF Rujukan</a>
+              </div>
+            </div>
+
+            <div class="nav-dropdown relative group">
               <button class="flex items-center gap-1 py-2 font-bold text-indigo-700 transition-colors hover:text-indigo-900">
                 Admission <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute right-0 mt-1 w-60 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="nav-dropdown-menu absolute right-0 top-full mt-0 w-60 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
                 <a href="./program-catalogue.html" class="flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"><span aria-hidden="true">▣</span> Program Catalog</a>
                 <a href="./scholarships.html" class="flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"><span aria-hidden="true">$</span> Insentif & Biasiswa</a>
                 <a href="./register-here.html" class="flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition"><span aria-hidden="true">▤</span> Register Here</a>
@@ -60,20 +101,20 @@ function loadSharedComponents() {
               </div>
             </div>
             
-            <div class="relative group">
+            <div class="nav-dropdown relative group">
               <button class="flex items-center gap-1 py-2 transition-colors hover:text-indigo-600">
                 E-Learning <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute right-0 mt-1 w-48 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="nav-dropdown-menu absolute right-0 top-full mt-0 w-48 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
                 <a href="./elearning.html" class="block rounded-lg px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition">Portal E-Learning</a>
               </div>
             </div>
 
-            <div class="relative group">
+            <div class="nav-dropdown relative group">
               <button class="flex items-center gap-1 py-2 font-bold text-indigo-700 transition-colors hover:text-indigo-900">
                 Portal <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute right-0 mt-1 w-64 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="nav-dropdown-menu absolute right-0 top-full mt-0 w-64 origin-top-right rounded-xl border border-slate-100 bg-white p-2 shadow-xl opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all duration-200 z-50">
                 <a href="${studentPortalHref}" class="block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Student Portal SKY</a>
                 <a href="${lecturerPortalHref}" class="mt-1 block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Lecturer Portal</a>
                 <a href="${adminPortalHref}" class="mt-1 block w-full rounded-lg px-4 py-3 text-center text-sm font-bold text-red-700 hover:bg-red-50 transition">Admin Portal</a>
@@ -92,7 +133,7 @@ function loadSharedComponents() {
   // 2. LOAD FOOTER
   const siteFooter = `
     <footer class="border-t border-slate-900 bg-slate-950 text-slate-400 text-xs mt-20">
-      <div class="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 md:grid-cols-4">
+      <div class="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div class="space-y-3">
           <h3 class="text-sm font-bold text-white tracking-wider uppercase">MiCoSTSkills</h3>
           <p class="leading-relaxed">Melahirkan graduan berkemahiran tinggi, berdaya saing, dan bersedia mendepani industri teknologi masa hadapan.</p>
@@ -116,6 +157,14 @@ function loadSharedComponents() {
           <h3 class="text-sm font-bold text-white tracking-wider uppercase">Hubungi Kami</h3>
           <p class="leading-relaxed">Lot 925, Blok C, Wisma Yayasan Melaka, Jalan Hang Tuah, 75300 Melaka.</p>
         </div>
+        <div class="space-y-3">
+          <h3 class="text-sm font-bold text-white tracking-wider uppercase">Developer</h3>
+          <ul class="space-y-2">
+            <li>Aizul Haziq</li>
+            <li>Nurul Ain</li>
+            <li>Haiqal Hafizuddin</li>
+          </ul>
+        </div>
       </div>
       <div class="border-t border-slate-900 py-6 text-center text-[11px]">
         <p>&copy; 2026 MiCoSTSkills KASUZAZ. Hak Cipta Terpelihara.</p>
@@ -127,10 +176,47 @@ function loadSharedComponents() {
   const body = document.body;
   body.insertAdjacentHTML("afterbegin", siteHeader);
   body.insertAdjacentHTML("beforeend", siteFooter);
+  initDropdownDelay();
 
   // Inisiasi Enjin Animasi Global & Kesan Sembang AI
   initGlobalAnimations();
   loadAiChatAndWhatsAppBot();
+}
+
+function initDropdownDelay() {
+  const dropdowns = document.querySelectorAll(".nav-dropdown");
+
+  dropdowns.forEach((dropdown) => {
+    let closeTimer;
+
+    const openMenu = () => {
+      clearTimeout(closeTimer);
+      dropdown.classList.add("is-open");
+    };
+
+    const scheduleClose = () => {
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(() => {
+        dropdown.classList.remove("is-open");
+      }, 260);
+    };
+
+    dropdown.addEventListener("mouseenter", openMenu);
+    dropdown.addEventListener("mouseleave", scheduleClose);
+    dropdown.addEventListener("focusin", openMenu);
+    dropdown.addEventListener("focusout", scheduleClose);
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    dropdowns.forEach((dropdown) => {
+      if (!dropdown.contains(event.target)) {
+        if (dropdown.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+        dropdown.classList.remove("is-open");
+      }
+    });
+  });
 }
 
 // =========================================================================
@@ -180,6 +266,11 @@ function loadStudentLoginPortal() {
           <div id="studentNameWrap" class="hidden">
             <label class="student-login-label" for="studentName">Nama Pelajar</label>
             <input id="studentName" class="student-login-field" type="text" autocomplete="name" placeholder="Nama penuh" />
+          </div>
+
+          <div id="studentIcWrap" class="hidden">
+            <label class="student-login-label" for="studentIc">No Kad Pengenalan</label>
+            <input id="studentIc" class="student-login-field" type="text" inputmode="numeric" autocomplete="off" placeholder="Contoh 060812-04-0054" />
           </div>
 
           <div>
@@ -241,6 +332,7 @@ function loadStudentLoginPortal() {
   const submitBtn = document.getElementById("studentLoginSubmitBtn");
   const statusBox = document.getElementById("studentLoginStatus");
   const nameWrap = document.getElementById("studentNameWrap");
+  const icWrap = document.getElementById("studentIcWrap");
   const programWrap = document.getElementById("studentProgramWrap");
   const subtitle = document.getElementById("studentLoginSubtitle");
   const modalTitle = document.getElementById("studentLoginTitle");
@@ -279,11 +371,12 @@ function loadStudentLoginPortal() {
   function setMode(nextMode) {
     isRegisterMode = nextMode;
     nameWrap.classList.toggle("hidden", !isRegisterMode);
+    icWrap.classList.toggle("hidden", !isRegisterMode);
     programWrap.classList.toggle("hidden", !isRegisterMode);
     submitBtn.textContent = isRegisterMode ? "Daftar Akaun Pelajar" : "Login";
     modeBtn.textContent = isRegisterMode ? "Sudah ada akaun? Login pelajar" : "Belum ada akaun? Daftar pelajar";
     subtitle.textContent = isRegisterMode
-      ? "Daftar akaun pelajar baru melalui micost-backend."
+      ? "Daftar hanya jika nama dan IC wujud dalam rekod rasmi MiCoSTSkills."
       : "Log masuk menggunakan akaun micost-backend.";
     clearStatus();
   }
@@ -325,6 +418,7 @@ function loadStudentLoginPortal() {
     const payload = isRegisterMode
       ? {
           name: document.getElementById("studentName").value.trim(),
+          ic: document.getElementById("studentIc").value.trim(),
           email,
           password,
           program: document.getElementById("studentProgram").value,
@@ -471,14 +565,14 @@ function loadAiChatAndWhatsAppBot() {
         50% { transform: translateY(-10px) scale(1.02); }
       }
       @keyframes dynamic-pulse {
-        0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
-        50% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
-        100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        0% { opacity: 0.86; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+        50% { opacity: 1; box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+        100% { opacity: 0.86; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
       }
       @keyframes wa-pulse {
-        0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
-        50% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
-        100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        0% { opacity: 0.86; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+        50% { opacity: 1; box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+        100% { opacity: 0.86; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
       }
       @keyframes pop-fluid {
         0% { opacity: 0; transform: translateY(25px) scale(0.85); }
@@ -531,8 +625,8 @@ function loadAiChatAndWhatsAppBot() {
                 <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </div>
               <div>
-                <h3 class="font-bold tracking-wide text-sm text-slate-100 flex items-center gap-1.5">Mira AI Assistant</h3>
-                <p class="text-[11px] text-slate-400">Gemini-powered MiCoSTSkills chat</p>
+                <h3 class="font-bold tracking-wide text-sm text-slate-100 flex items-center gap-1.5">Haza AI Assistant</h3>
+                <p class="text-[11px] text-slate-400">AI-powered MiCoSTSkills chat</p>
               </div>
             </div>
             <span class="text-[10px] bg-white/10 text-indigo-300 px-2 py-0.5 rounded-full font-medium border border-white/5">AI Beta</span>
@@ -545,7 +639,7 @@ function loadAiChatAndWhatsAppBot() {
           </div>
         </div>
 
-        <div class="border-t border-slate-100 bg-white p-4">
+        <div id="chatComposer" class="border-t border-slate-100 bg-white p-4">
           <div class="mb-3 flex flex-wrap gap-1.5">
             <button class="quickAsk quick-pill rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-[11px] text-slate-600 font-semibold transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-600 hover:-translate-y-0.5 hover:shadow-sm" data-msg="Senarai program apa yang ditawarkan?">📚 Program</button>
             <button class="quickAsk quick-pill rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-[11px] text-slate-600 font-semibold transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-600 hover:-translate-y-0.5 hover:shadow-sm" data-msg="Di mana lokasi MiCoST?">📍 Lokasi</button>
@@ -561,7 +655,7 @@ function loadAiChatAndWhatsAppBot() {
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-3.5 animate-float-premium">
+      <div class="flex items-center justify-end gap-3.5">
         <a id="whatsappBotBtn" href="https://wa.me/601173950492?text=Assalamualaikum%20admin%20MiCoSTSkills%2C%20saya%20nak%20tanya%20tentang%20program%20dan%20pendaftaran." target="_blank" class="animate-wa-pulse flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-all duration-300 hover:bg-green-600 hover:scale-115 hover:rotate-12 active:scale-90">
           <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397 0 11.93 0c3.165.001 6.14 1.233 8.377 3.469 2.237 2.235 3.469 5.211 3.469 8.379-.004 6.582-5.342 11.93-11.877 11.93h-.006c-2.014-.001-3.996-.51-5.772-1.482L0 24zm6.59-4.846c1.6.95 3.182 1.449 4.725 1.451 5.405.001 9.803-4.377 9.806-9.762.001-2.61-1.013-5.064-2.855-6.909C16.431 2.088 13.98 1.07 11.398 1.07 6.002 1.07 1.606 5.447 1.603 10.832c-.001 1.62.427 3.203 1.24 4.616l-.993 3.627 3.71-.973zm11.214-6.963c-.309-.155-1.826-.901-2.104-1.002-.278-.102-.481-.153-.682.153-.202.305-.779 1.002-.955 1.204-.177.202-.355.228-.664.073-.309-.155-1.305-.481-2.485-1.535-.918-.82-1.538-1.832-1.718-2.137-.18-.306-.019-.471.135-.624.14-.137.31-.361.464-.541.154-.18.206-.305.309-.509.104-.204.052-.382-.026-.536-.078-.155-.682-1.646-.935-2.254-.246-.594-.497-.513-.682-.522-.176-.008-.377-.01-.578-.011-.2-.001-.527.075-.802.377-.276.301-1.053 1.029-1.053 2.507 0 1.478 1.075 2.906 1.225 3.109.15.204 2.11 3.221 5.111 4.517.714.309 1.272.493 1.707.631.717.228 1.369.196 1.884.119.574-.085 1.826-.747 2.083-1.434.256-.687.256-1.275.179-1.399-.077-.124-.278-.203-.587-.358z"/></svg>
         </a>
@@ -581,6 +675,8 @@ function loadAiChatAndWhatsAppBot() {
   const chatInput = document.getElementById("chatInput");
   const chatMessages = document.getElementById("chatMessages");
   const quickAskButtons = document.querySelectorAll(".quickAsk");
+  const chatHistory = [];
+  let usesZapierEmbed = false;
 
   chatToggleBtn.addEventListener("click", () => {
     if (chatPanel.classList.contains("hidden")) {
@@ -635,6 +731,28 @@ function loadAiChatAndWhatsAppBot() {
     chatMessages.appendChild(indicator);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return indicator;
+  }
+
+  async function loadZapierEmbedIfConfigured() {
+    try {
+      const response = await fetch(`${apiOrigin}/api/chat-config`);
+      const config = await response.json().catch(() => ({}));
+      if (!config.zapierChatbotUrl) return;
+
+      usesZapierEmbed = true;
+      chatMessages.className = "h-[28rem] overflow-hidden bg-white";
+      chatMessages.innerHTML = `
+        <iframe
+          title="Haza AI Zapier Chatbot"
+          src="${String(config.zapierChatbotUrl).replaceAll('"', "&quot;")}"
+          class="h-full w-full border-0 bg-white"
+          allow="clipboard-write"
+        ></iframe>
+      `;
+      document.getElementById("chatComposer")?.classList.add("hidden");
+    } catch {
+      usesZapierEmbed = false;
+    }
   }
 
   const botKnowledge = [
@@ -795,44 +913,53 @@ function loadAiChatAndWhatsAppBot() {
       .slice(0, 2500);
   }
 
-  async function getMiraAiReply(question) {
+  async function getHazaAiReply(question) {
     const response = await fetch(`${apiOrigin}/api/mira-ai`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: question,
         pageContext: getPageContextForAi(),
+        history: chatHistory,
       }),
     });
 
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok || !data.reply) {
-      throw new Error(data.error || "Mira AI belum tersedia.");
+      throw new Error(data.error || "Haza AI belum tersedia.");
     }
 
-    return data.reply;
+    return data;
   }
 
   async function sendChat() {
+    if (usesZapierEmbed) return;
     const userText = chatInput.value.trim();
     if (!userText) return;
 
     addMessage(userText, "user");
     chatInput.value = "";
     sendChatBtn.disabled = true;
-    sendChatBtn.textContent = "Mira...";
+    sendChatBtn.textContent = "Haza...";
 
     const typingBubble = showTypingIndicator();
     try {
-      const reply = await getMiraAiReply(userText);
+      const data = await getHazaAiReply(userText);
+      const reply = data.reply || "Maaf, Haza AI belum dapat jawab sekarang. Cuba tanya semula.";
       typingBubble.remove();
-      addMessage(reply, "bot");
+      addMessage(data.fallback
+        ? `${reply}\n\nNota: AI live belum aktif pada server, jadi jawapan ini guna mode fallback MiCoSTSkills.`
+        : reply, "bot");
+      chatHistory.push({ role: "user", content: userText }, { role: "assistant", content: reply });
+      chatHistory.splice(0, Math.max(0, chatHistory.length - 12));
     } catch {
       setTimeout(() => {
         typingBubble.remove();
         const reply = getBotReply(userText);
-        addMessage(`${reply}\n\nNota: Mira AI Gemini belum aktif pada server, jadi jawapan ini guna mode fallback MiCoSTSkills.`, "bot");
+        addMessage(`${reply}\n\nNota: AI live belum aktif pada server, jadi jawapan ini guna mode fallback MiCoSTSkills.`, "bot");
+        chatHistory.push({ role: "user", content: userText }, { role: "assistant", content: reply });
+        chatHistory.splice(0, Math.max(0, chatHistory.length - 12));
       }, 500);
     } finally {
       sendChatBtn.disabled = false;
@@ -851,6 +978,8 @@ function loadAiChatAndWhatsAppBot() {
       sendChat();
     });
   });
+
+  loadZapierEmbedIfConfigured();
 }
 
 document.addEventListener("DOMContentLoaded", loadSharedComponents);
