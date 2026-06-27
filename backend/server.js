@@ -1762,7 +1762,7 @@ async function start() {
   const storage = await storageReady;
   app.listen(PORT, () => {
     console.log(`MiCoSTSkills website ready at http://localhost:${PORT}`);
-    console.log(`Storage primary: ${storage.primary}${storage.firebase ? " + Firebase mirror" : ""}`);
+    console.log(`Storage primary: ${storage.primary}`);
   });
 }
 
