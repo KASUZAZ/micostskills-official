@@ -810,7 +810,11 @@ app.put("/api/me/profile", auth, async (req, res) => {
     user.program = req.body.program;
   }
 
-  await writeStore(store);
+  const saveResult = await writeStore(store);
+  if (saveResult && saveResult.ok === false) {
+    return res.status(500).json({ error: "Gagal simpan maklumat ke database. Sila cuba semula." });
+  }
+
   res.json({ success: true, user: publicUser(user), token: signUser(user) });
 });
 

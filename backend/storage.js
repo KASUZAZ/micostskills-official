@@ -84,6 +84,7 @@ function createAppStorage({ dataFile, emptyStore }) {
 
       if (error) {
         console.error(`Supabase save failed: ${error.message}`);
+        return { ok: false, error: error.message };
       } else {
         await supabase.from(BACKUP_TABLE).insert({ source: "server-write", data: store }).then(({ error: backupError }) => {
           if (backupError) console.warn(`Supabase backup insert skipped: ${backupError.message}`);
@@ -91,6 +92,7 @@ function createAppStorage({ dataFile, emptyStore }) {
       }
     }
 
+    return { ok: true };
   }
 
   function status() {
