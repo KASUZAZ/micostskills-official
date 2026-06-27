@@ -4,7 +4,7 @@ const API_ORIGIN = window.location.protocol === "file:" || window.location.hostn
 const courseType = document.body.dataset.course || "";
 const finalExamState = {
   answers: {},
-  correctAnswers: {},
+  total: 0,
 };
 
 function getToken() {
@@ -68,7 +68,8 @@ function initFilters() {
     resourceCards.forEach((card) => {
       const category = card.dataset.category || "";
       const cardText = card.textContent.toLowerCase();
-      const matchesFilter = selectedFilter === "all" || category === selectedFilter;
+      const categories = category.split(/\s+/).filter(Boolean);
+      const matchesFilter = selectedFilter === "all" || categories.includes(selectedFilter);
       const matchesSearch = cardText.includes(searchTerm);
       card.hidden = !(matchesFilter && matchesSearch);
     });
@@ -91,58 +92,63 @@ function initFilters() {
   applyResourceFilters();
 }
 
-function makeQuestionBank(type) {
-  const komputer = [
-    ["Apakah fungsi utama CPU?", ["Memproses arahan", "Menyimpan data kekal", "Mencetak dokumen", "Membekalkan kuasa"], "A"],
-    ["Komponen manakah menyimpan data sementara?", ["RAM", "SSD", "Monitor", "Keyboard"], "A"],
-    ["IP address digunakan untuk apa?", ["Mengenal pasti peranti dalam rangkaian", "Membersihkan virus", "Menambah RAM", "Membuka casing"], "A"],
-    ["Perisian sistem yang mengurus hardware ialah", ["Operating system", "Spreadsheet", "Browser", "Antivirus sahaja"], "A"],
-    ["Apakah tujuan backup data?", ["Mengurangkan risiko kehilangan data", "Meningkatkan saiz monitor", "Menukar voltan", "Mencetak fail"], "A"],
-    ["Peranti input ialah", ["Keyboard", "Printer", "Speaker", "Projector"], "A"],
-    ["Peranti output ialah", ["Monitor", "Mouse", "Scanner", "Microphone"], "A"],
-    ["Kabel rangkaian biasa untuk LAN ialah", ["Ethernet", "HDMI", "VGA", "SATA"], "A"],
-    ["BIOS/UEFI digunakan semasa", ["Boot dan konfigurasi asas", "Menaip dokumen", "Membuat poster", "Menghantar emel"], "A"],
-    ["Antivirus membantu", ["Mengesan dan mengurangkan ancaman malware", "Menaikkan kelajuan internet sahaja", "Menukar CPU", "Mengecas bateri"], "A"],
-    ["Subnet mask berkaitan dengan", ["Pembahagian rangkaian IP", "Saiz hard disk", "Resolusi skrin", "Jenis printer"], "A"],
-    ["Device Manager digunakan untuk", ["Semak driver dan peranti", "Lukis litar", "Edit video", "Kira gaji"], "A"],
-  ];
-  const elektrik = [
-    ["Apakah alat untuk mengukur voltan?", ["Multimeter", "Tukul", "Gergaji", "Spanar paip"], "A"],
-    ["PPE digunakan untuk", ["Keselamatan kerja", "Meningkatkan voltan", "Menambah arus", "Menggantikan MCB"], "A"],
-    ["MCB berfungsi sebagai", ["Perlindungan arus lebih", "Lampu hiasan", "Penyimpan tenaga", "Alat ukur suhu"], "A"],
-    ["Wayar bumi biasanya berfungsi untuk", ["Laluan perlindungan keselamatan", "Menghasilkan cahaya", "Menyimpan data", "Menukar frekuensi"], "A"],
-    ["Sebelum kerja wiring, bekalan perlu", ["Dimatikan dan disahkan selamat", "Dinaikkan voltan", "Dibiarkan terbuka", "Disambung terus"], "A"],
-    ["RCCB membantu mengesan", ["Kebocoran arus", "Saiz skrin", "Kelajuan komputer", "Jenis printer"], "A"],
-    ["Cable size dipilih berdasarkan", ["Beban dan arus litar", "Warna dinding", "Jenama laptop", "Jenis meja"], "A"],
-    ["Test pen digunakan untuk", ["Mengesan kehadiran voltan", "Memotong kayu", "Membuka fail", "Mencetak lukisan"], "A"],
-    ["Litar lampu satu hala dikawal oleh", ["Satu suis", "Tiga router", "Dua keyboard", "Satu printer"], "A"],
-    ["Continuity test menyemak", ["Sambungan litar", "Warna kabel", "Tarikh sijil", "Saiz bilik"], "A"],
-    ["Distribution board menempatkan", ["Peranti perlindungan dan agihan", "Fail komputer", "Aircond", "Server data"], "A"],
-    ["Lockout/tagout bertujuan", ["Elak bekalan dihidupkan semasa kerja", "Mempercepat internet", "Menukar password", "Mencuci lantai"], "A"],
-  ];
-  const seed = type === "elektrik" ? elektrik : komputer;
+async function loadLecturerMaterials() {
+  const mount = document.getElementById("lecturerMaterials");
+  if (!mount || !courseType) return;
 
-  return Array.from({ length: 60 }, (_, index) => {
-    const base = seed[index % seed.length];
-    const cycle = Math.floor(index / seed.length) + 1;
-    return {
-      id: `q${index + 1}`,
-      question: `${base[0]} (${cycle}.${(index % seed.length) + 1})`,
-      options: base[1],
-      answer: base[2],
-    };
-  });
+  try {
+    const data = await api(`/api/elearning/materials?course=${courseType}`);
+    const materials = data.materials || [];
+    if (!materials.length) {
+      mount.innerHTML = "";
+      return;
+    }
+
+    mount.innerHTML = `
+      <div class="lecturer-materials-header">
+        <p class="eyebrow">Bahan Tambahan Lecturer</p>
+        <h3>Nota, video dan maklumat terkini</h3>
+      </div>
+      <div class="lecturer-material-grid">
+        ${materials.map((item, index) => `
+          <article class="resource-card lecturer-material-card" data-category="${escapeHTML(String(item.type || "note").toLowerCase())}">
+            <div class="resource-icon">${String(index + 1).padStart(2, "0")}</div>
+            <h3>${escapeHTML(item.title)}</h3>
+            <p>${escapeHTML(item.content || "Bahan tambahan daripada lecturer untuk program ini.")}</p>
+            <div class="tag-row">
+              <span class="tag">${escapeHTML(item.type || "Nota")}</span>
+              <span class="tag">${escapeHTML(item.program_code || "")}</span>
+            </div>
+            ${item.link ? `<a class="open-btn" href="${escapeHTML(item.link)}" target="_blank" rel="noopener noreferrer">Buka Link</a>` : ""}
+          </article>
+        `).join("")}
+      </div>
+    `;
+  } catch {
+    mount.innerHTML = "";
+  }
 }
 
-function renderExam() {
+async function renderExam() {
   const mount = document.getElementById("finalExamQuestions");
   if (!mount || !courseType) return;
 
-  const questions = makeQuestionBank(courseType);
-  finalExamState.correctAnswers = Object.fromEntries(questions.map((question) => [question.id, question.answer]));
+  mount.innerHTML = "<p class='status-note'>Memuatkan soalan final exam...</p>";
+
+  let questions = [];
+  try {
+    const data = await api(`/api/elearning/final-exam/${courseType}/questions`);
+    questions = data.questions || [];
+  } catch (error) {
+    mount.innerHTML = `<p class="status-note">${escapeHTML(error.message)}</p>`;
+    return;
+  }
+
+  finalExamState.total = questions.length;
   mount.innerHTML = questions.map((question, index) => `
     <div class="question-box">
       <strong>${index + 1}. ${escapeHTML(question.question)}</strong>
+      ${question.module ? `<p class="status-note">${escapeHTML(question.module)}</p>` : ""}
       <div class="option-grid">
         ${question.options.map((option, optionIndex) => {
           const value = String.fromCharCode(65 + optionIndex);
@@ -170,7 +176,7 @@ function renderExam() {
 function updateAnsweredCount() {
   const answered = Object.keys(finalExamState.answers).length;
   const el = document.getElementById("answeredCount");
-  if (el) el.textContent = `${answered}/60`;
+  if (el) el.textContent = `${answered}/${finalExamState.total || 60}`;
 }
 
 async function refreshCourseSession() {
@@ -267,8 +273,8 @@ async function submitFinalExam() {
     return;
   }
 
-  if (Object.keys(finalExamState.answers).length < 60) {
-    if (status) status.textContent = "Sila jawab semua 60 soalan sebelum hantar.";
+  if (Object.keys(finalExamState.answers).length < (finalExamState.total || 60)) {
+    if (status) status.textContent = `Sila jawab semua ${finalExamState.total || 60} soalan sebelum hantar.`;
     return;
   }
 
@@ -277,12 +283,15 @@ async function submitFinalExam() {
       method: "POST",
       body: JSON.stringify({
         answers: finalExamState.answers,
-        correctAnswers: finalExamState.correctAnswers,
       }),
     });
     showCertificate(data.result);
     await loadLeaderboard();
-    if (status) status.textContent = "Final exam berjaya dihantar. E-certificate telah dijana.";
+    if (status) {
+      status.textContent = data.result.status === "Lulus"
+        ? "Final exam berjaya dihantar. E-certificate telah dijana."
+        : "Final exam berjaya dihantar. Markah belum lulus, sila ulang kaji dan cuba lagi.";
+    }
   } catch (error) {
     if (status) status.textContent = error.message;
   }
@@ -292,21 +301,84 @@ function showCertificate(result) {
   const cert = document.getElementById("certificateCard");
   if (!cert) return;
   cert.style.display = "block";
+  cert.classList.remove("certificate-card-visible");
   cert.dataset.name = result.name || "";
   cert.dataset.program = result.program || "";
   cert.dataset.title = result.title || "";
   cert.dataset.status = result.status || "";
   cert.dataset.score = result.score || "";
   cert.dataset.certificateId = result.certificate_id || "";
+
+  if (result.status !== "Lulus") {
+    cert.innerHTML = `
+      <div class="certificate-pending">
+        <p class="el-kicker" style="color:#9f1239;border-color:#fecdd3;background:#fff1f2">Belum Layak Sijil</p>
+        <h3>Markah ${escapeHTML(result.score)}% - ${escapeHTML(result.status)}</h3>
+        <p>Anda perlu mencapai sekurang-kurangnya 60% untuk menjana e-certificate.</p>
+        <a class="primary-btn cert-download-btn" href="./elearning-komputer-exam.html">Ulang Final Exam</a>
+      </div>
+    `;
+    cert.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
   cert.innerHTML = `
-    <p class="el-kicker" style="color:#006657;border-color:#8edbd7;background:#f1fffd">E-Certificate</p>
-    <h3>Sijil Tamat E-Learning TVET</h3>
-    <p>Dianugerahkan kepada</p>
-    <div class="cert-name">${escapeHTML(result.name)}</div>
-    <p>${escapeHTML(result.program || "")}</p>
-    <div class="cert-score">${escapeHTML(result.score)}%</div>
-    <p>${escapeHTML(result.title)} - ${escapeHTML(result.status)}</p>
-    <p class="status-note">ID Sijil: ${escapeHTML(result.certificate_id)}</p>
+    <div class="achievement-certificate">
+      <div class="cert-corner cert-corner-tl"></div>
+      <div class="cert-corner cert-corner-tr"></div>
+      <div class="cert-ribbon">
+        <div class="cert-medal">
+          <span>MS</span>
+          <small>MiCoSTSkills<br />E-Learning</small>
+        </div>
+      </div>
+      <div class="cert-top">
+        <img src="./resources/logo-micostskills.png" alt="MiCoSTSkills" />
+        <div>
+          <strong>MiCoSTSkills</strong>
+          <span>Melaka International College of Science and Technology</span>
+        </div>
+      </div>
+      <div class="cert-watermark">MS</div>
+      <div class="cert-main">
+        <h3>Sijil Pencapaian</h3>
+        <p class="cert-subtitle">Certificate of Achievement</p>
+        <p class="cert-presented">Dengan ini diperakui bahawa</p>
+        <div class="cert-name">${escapeHTML(result.name)}</div>
+        <p class="cert-body-text">
+          telah berjaya menamatkan kursus e-learning dan penilaian yang ditetapkan
+          melalui platform MiCoSTSkills.
+        </p>
+      </div>
+      <div class="cert-info-grid">
+        <div class="cert-course">
+          <span>Kursus</span>
+          <strong>Basic Computer System Administration</strong>
+          <p>Pengenalan kepada sistem komputer, sistem operasi, pengurusan pengguna, penyelenggaraan sistem dan asas keselamatan.</p>
+        </div>
+        <div class="cert-meta-list">
+          <div><span>Tempoh Pembelajaran</span><strong>10 Jam</strong></div>
+          <div><span>Markah Penilaian</span><strong>${escapeHTML(result.score)}% (${Number(result.score) >= 85 ? "Cemerlang" : "Lulus"})</strong></div>
+          <div><span>Tarikh Tamat</span><strong>${new Date().toLocaleDateString("ms-MY", { day: "2-digit", month: "long", year: "numeric" })}</strong></div>
+          <div><span>Certificate ID</span><strong>${escapeHTML(result.certificate_id)}</strong></div>
+        </div>
+        <div class="cert-verify">
+          <strong>Pengesahan Sijil</strong>
+          <span>www.micost.edu.my</span>
+          <div class="cert-qr-placeholder">QR</div>
+          <p>Sijil ini boleh disahkan secara dalam talian.</p>
+        </div>
+      </div>
+      <div class="cert-sign-row">
+        <div><span></span><p>Pengarah / Wakil Pengurusan MiCoST</p></div>
+        <div><span></span><p>Penyelaras Program E-Learning / Ketua Program</p></div>
+      </div>
+      <div class="cert-bottom">
+        <span>micost.official</span>
+        <strong>www.micost.edu.my</strong>
+        <span>Sijil digital dijana oleh sistem MiCoSTSkills.</span>
+      </div>
+    </div>
     <button class="primary-btn cert-download-btn" type="button" id="downloadCertificateBtn">Download Certificate</button>
   `;
   document.getElementById("downloadCertificateBtn")?.addEventListener("click", downloadCertificate);
@@ -330,6 +402,8 @@ function downloadCertificate() {
       year: "numeric",
     }),
   };
+  const gradeLabel = Number(payload.score) >= 85 ? "Cemerlang" : "Lulus";
+  const logoUrl = `${API_ORIGIN}/resources/logo-micostskills.png`;
 
   const certificateHtml = `<!doctype html>
 <html lang="ms">
@@ -338,34 +412,85 @@ function downloadCertificate() {
   <title>${escapeHTML(payload.certificateId)} - MiCoSTSkills E-Certificate</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #eef5f7; font-family: Arial, Helvetica, sans-serif; color: #26323a; }
-    .certificate { width: min(1100px, 94vw); min-height: 720px; border: 12px solid #00b8b0; background: linear-gradient(135deg, rgba(0,184,176,0.11), transparent 36%), #fff; padding: 62px; text-align: center; box-shadow: 0 28px 80px rgba(15,23,42,0.18); }
-    .brand { color: #1358a8; font-size: 24px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; }
-    h1 { margin: 34px 0 10px; color: #cf202f; font-size: 54px; line-height: 1; }
-    .small { color: #65737f; font-size: 18px; }
-    .name { margin: 34px auto 12px; border-bottom: 3px solid #d9e2e8; padding-bottom: 14px; max-width: 820px; color: #1358a8; font-size: 42px; font-weight: 900; }
-    .score { margin: 26px 0; color: #cf202f; font-size: 70px; font-weight: 900; }
-    .meta { margin-top: 28px; display: grid; gap: 10px; color: #26323a; font-size: 18px; font-weight: 700; }
-    .footer { margin-top: 56px; display: flex; justify-content: space-between; gap: 20px; color: #65737f; font-size: 14px; text-align: left; }
-    @media print { body { background: white; } .certificate { box-shadow: none; width: 100%; min-height: 100vh; } }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #eef3f7; font-family: Arial, Helvetica, sans-serif; color: #0b2447; }
+    .certificate { position: relative; width: min(1280px, 96vw); min-height: 820px; overflow: hidden; border: 10px solid #092346; background: #fff; padding: 42px 58px 74px 178px; box-shadow: 0 28px 80px rgba(15,23,42,0.18); }
+    .certificate::before { content: ""; position: absolute; inset: 16px; border: 2px solid #c48a2c; pointer-events: none; }
+    .certificate::after { content: "MS"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(9,35,70,0.04); font-family: Georgia, serif; font-size: 360px; font-weight: 900; pointer-events: none; }
+    .ribbon { position: absolute; left: 58px; top: 0; width: 104px; height: 360px; background: linear-gradient(180deg,#061b39,#102f5c); border-left: 5px solid #c48a2c; border-right: 5px solid #c48a2c; }
+    .ribbon::after { content: ""; position: absolute; left: 13px; right: 13px; bottom: -44px; border-left: 34px solid transparent; border-right: 34px solid transparent; border-top: 44px solid #102f5c; }
+    .medal { position: absolute; left: 22px; top: 170px; width: 176px; height: 176px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 38% 32%,#fff7c4,#e8b341 56%,#a86c16); border: 8px solid #d7a23a; color: #113763; text-align: center; box-shadow: 0 14px 30px rgba(15,23,42,.2); z-index: 2; }
+    .medal span { display: block; font-size: 46px; font-weight: 900; color: #d8232a; }
+    .medal small { display: block; color: #0b2447; font-size: 15px; font-weight: 900; line-height: 1.1; }
+    .top { position: relative; z-index: 1; display: flex; align-items: center; gap: 18px; margin: 8px 0 42px; }
+    .top img { width: 80px; height: 80px; object-fit: contain; }
+    .top strong { display: block; color: #e11d2e; font-size: 44px; line-height: .9; }
+    .top span { color: #0b2447; font-size: 20px; font-weight: 800; text-transform: uppercase; }
+    .main { position: relative; z-index: 1; text-align: center; }
+    h1 { margin: 0; color: #0b2447; font-family: Georgia, serif; font-size: 70px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+    .subtitle { margin: 10px 0 34px; color: #b9832b; font-family: Georgia, serif; font-size: 28px; letter-spacing: .22em; text-transform: uppercase; }
+    .presented { font-size: 20px; }
+    .name { margin: 18px auto 18px; max-width: 880px; border-bottom: 2px solid #c48a2c; padding-bottom: 12px; color: #0b2447; font-family: Georgia, serif; font-size: 52px; font-style: italic; }
+    .body-text { margin: 0 auto 30px; max-width: 760px; font-size: 19px; line-height: 1.55; color: #23344d; }
+    .info { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr 1fr .55fr; gap: 28px; margin-top: 24px; text-align: left; }
+    .course strong { display: block; margin: 12px 0; color: #0b2447; font-family: Georgia, serif; font-size: 24px; }
+    .badge { display: inline-block; border-radius: 999px; background: #092346; color: #fff; padding: 10px 22px; font-weight: 900; }
+    .course p, .verify p { color: #334155; line-height: 1.55; }
+    .meta { border-left: 2px solid #c48a2c; padding-left: 22px; }
+    .meta div { display: grid; grid-template-columns: 170px 1fr; gap: 16px; border-bottom: 1px solid #d8b46a; padding: 10px 0; font-size: 16px; }
+    .meta span { font-weight: 900; }
+    .verify { border-left: 2px solid #c48a2c; padding-left: 22px; text-align: center; }
+    .verify strong { display: block; font-size: 20px; }
+    .verify span { display: inline-block; margin: 10px 0; border-radius: 999px; background: #092346; color: white; padding: 8px 18px; font-weight: 900; }
+    .qr { width: 116px; height: 116px; margin: 8px auto; display: grid; place-items: center; border: 8px solid #111827; background: repeating-linear-gradient(45deg,#111827 0 8px,#fff 8px 16px); color: #e11d2e; font-size: 24px; font-weight: 900; }
+    .sign { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin: 50px auto 0; max-width: 820px; text-align: center; }
+    .sign span { display: block; height: 42px; border-bottom: 2px solid #c48a2c; }
+    .sign p { margin: 10px 0 0; font-size: 14px; font-weight: 900; }
+    .bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; justify-content: center; gap: 80px; background: #061b39; color: white; padding: 20px; font-weight: 800; }
+    @media print { body { background: white; } .certificate { width: 100%; min-height: 100vh; box-shadow: none; } }
   </style>
 </head>
 <body>
   <main class="certificate">
-    <div class="brand">MiCoSTSkills E-Learning TVET</div>
-    <h1>Sijil Tamat E-Learning</h1>
-    <p class="small">Dianugerahkan kepada</p>
-    <div class="name">${escapeHTML(payload.name)}</div>
-    <p class="small">${escapeHTML(payload.program)}</p>
-    <div class="score">${escapeHTML(payload.score)}%</div>
-    <div class="meta">
-      <div>${escapeHTML(payload.title)} - ${escapeHTML(payload.status)}</div>
-      <div>ID Sijil: ${escapeHTML(payload.certificateId)}</div>
-      <div>Tarikh Dikeluarkan: ${escapeHTML(payload.issuedAt)}</div>
+    <div class="ribbon"></div>
+    <div class="medal"><div><span>MS</span><small>MiCoSTSkills<br />E-Learning</small></div></div>
+    <div class="top">
+      <img src="${escapeHTML(logoUrl)}" alt="MiCoSTSkills" />
+      <div><strong>MiCoST</strong><span>Institusi Pengajian Tinggi Milik Kerajaan Negeri Melaka</span></div>
     </div>
-    <div class="footer">
-      <div>Disahkan oleh Sistem E-Learning MiCoSTSkills</div>
-      <div>Dokumen digital ini boleh dicetak melalui browser.</div>
+    <div class="main">
+      <h1>Sijil Pencapaian</h1>
+      <div class="subtitle">Certificate of Achievement</div>
+      <p class="presented">Dengan ini diperakui bahawa</p>
+      <div class="name">${escapeHTML(payload.name)}</div>
+      <p class="body-text">telah berjaya menamatkan kursus e-learning dan penilaian yang ditetapkan melalui platform MiCoSTSkills.</p>
+    </div>
+    <div class="info">
+      <div class="course">
+        <span class="badge">Kursus</span>
+        <strong>Basic Computer System Administration</strong>
+        <p>Pengenalan kepada sistem komputer, sistem operasi, pengurusan pengguna, penyelenggaraan sistem dan asas keselamatan.</p>
+      </div>
+      <div class="meta">
+        <div><span>Tempoh Pembelajaran</span><strong>10 Jam</strong></div>
+        <div><span>Markah Penilaian</span><strong>${escapeHTML(payload.score)}% (${escapeHTML(gradeLabel)})</strong></div>
+        <div><span>Tarikh Tamat</span><strong>${escapeHTML(payload.issuedAt)}</strong></div>
+        <div><span>Certificate ID</span><strong>${escapeHTML(payload.certificateId)}</strong></div>
+      </div>
+      <div class="verify">
+        <strong>Pengesahan Sijil</strong>
+        <span>www.micost.edu.my</span>
+        <div class="qr">MS</div>
+        <p>Sijil ini boleh disahkan secara dalam talian.</p>
+      </div>
+    </div>
+    <div class="sign">
+      <div><span></span><p>Pengarah / Wakil Pengurusan MiCoST</p></div>
+      <div><span></span><p>Penyelaras Program E-Learning / Ketua Program</p></div>
+    </div>
+    <div class="bottom">
+      <span>micost.official</span>
+      <strong>www.micost.edu.my</strong>
+      <span>Sijil digital dijana oleh sistem MiCoSTSkills.</span>
     </div>
   </main>
 </body>
@@ -398,6 +523,7 @@ async function loadLeaderboard() {
 
   try {
     const data = await api(`/api/elearning/leaderboard?course=${courseType}`);
+    const rows = data.rows || [];
     mount.innerHTML = data.top
       ? `
         <div class="tag">Top 1</div>
@@ -405,8 +531,25 @@ async function loadLeaderboard() {
         <p class="cert-score">${escapeHTML(data.top.score)}%</p>
         <p>${escapeHTML(data.top.correct)}/${escapeHTML(data.top.total_questions)} soalan betul</p>
         <p class="status-note">${escapeHTML(data.top.certificate_id || "")}</p>
+        ${document.getElementById("leaderboardRows") ? "" : ""}
       `
       : "<p class='status-note'>Belum ada ranking. Pelajar pertama yang hantar final exam akan muncul di sini.</p>";
+
+    const tableMount = document.getElementById("leaderboardRows");
+    if (tableMount) {
+      tableMount.innerHTML = rows.length
+        ? rows.map((row, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHTML(row.name)}</td>
+            <td>${escapeHTML(row.program || "-")}</td>
+            <td>${escapeHTML(row.score)}%</td>
+            <td>${escapeHTML(row.correct)}/${escapeHTML(row.total_questions)}</td>
+            <td>${escapeHTML(row.certificate_id || "-")}</td>
+          </tr>
+        `).join("")
+        : "<tr><td colspan='6'>Belum ada rekod ranking.</td></tr>";
+    }
   } catch (error) {
     mount.innerHTML = `<p class="status-note">${escapeHTML(error.message)}</p>`;
   }
@@ -428,5 +571,6 @@ initFilters();
 initCourseLogin();
 initExamActions();
 initAnchorNav();
+loadLecturerMaterials();
 renderExam();
 refreshCourseSession();

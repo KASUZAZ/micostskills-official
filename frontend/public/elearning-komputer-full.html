@@ -23,7 +23,7 @@
           <input id="courseEmail" class="login-field" type="email" placeholder="Username / Email" required />
           <input id="coursePassword" class="login-field" type="password" placeholder="Password" required />
           <button class="login-btn" type="submit" title="Login Student Portal" aria-label="Login Student Portal">›</button>
-          <a class="forgotten" href="./student-portal">Forgotten password</a>
+          <a class="forgotten" href="./student.html">Forgotten password</a>
           <p id="courseLoginStatus" class="status-note"></p>
         </form>
         <div id="courseUserChip" class="user-chip"></div>
@@ -33,17 +33,18 @@
         <a class="active" href="./elearning.html">Home</a>
         <button data-scroll-target="#about">About Us</button>
         <button data-scroll-target="#materials">Courses</button>
-        <button data-scroll-target="#exam">Final Exam</button>
-        <button data-scroll-target="#certificate">E-Certificate</button>
+        <a href="./elearning-komputer-exam.html">Final Exam</a>
+        <a href="./elearning-komputer-ranking.html">Ranking Top</a>
+        <a href="./elearning-komputer-certificate.html">E-Certificate</a>
       </nav>
 
-      <section class="course-hero" style="--hero-image: url('./resources/faculty of IT and multimedia/program1.jpg')">
+      <section class="course-hero" style="--hero-image: url('../../resources/faculty of IT and multimedia/program1.jpg')">
         <div class="course-hero-content">
           <p class="el-kicker">IT-020-3:2013 / IT-020-4:2013</p>
-          <h1>Sistem Komputer TVET</h1>
+          <h1>Modul Asas Sistem Komputer</h1>
           <p>
-            Pembelajaran berstruktur untuk computer setup, maintenance, repair, server installation,
-            networking, mobile device setup dan computer system security.
+            Kandungan e-learning berdasarkan Modul Asas Sistem Komputer MiCoSTSkills: nota, video, kuiz dan tugasan amali
+            untuk computer setup, maintenance, repair, server, network dan security.
           </p>
         </div>
       </section>
@@ -54,10 +55,15 @@
             <h2 class="section-title">Welcome to MiCoSTSkills e-Learning Portal.</h2>
             <div class="section-rule"></div>
             <p class="intro-copy">
-              Kursus ini fokus kepada kemahiran TVET Sistem Komputer berdasarkan kod IT.
-              Pelajar boleh membaca nota, membuat tugasan amali, menjawab final exam 60 soalan objektif,
-              dan menerima e-certificate selepas peperiksaan dihantar.
+              Pada akhir modul, pelajar dapat mengenal pasti komponen sistem komputer, melakukan penyelenggaraan dan
+              troubleshooting asas, memasang server latihan, mengkonfigurasi rangkaian serta mengamalkan tetapan
+              keselamatan sistem.
             </p>
+            <div class="quick-actions">
+              <a class="primary-btn" href="./elearning-komputer-exam.html">Pergi Final Exam</a>
+              <a class="secondary-btn" href="./elearning-komputer-ranking.html">Lihat Ranking</a>
+              <a class="secondary-btn" href="./elearning-komputer-certificate.html">E-Certificate</a>
+            </div>
           </div>
           <div class="video-panel">
             <div>
@@ -82,13 +88,14 @@
           </div>
         </div>
         <div class="resource-grid">
-          <article class="resource-card" data-category="note"><div class="resource-icon">01</div><h3>Computer System Setup</h3><p>Komponen komputer, BIOS/UEFI, OS installation dan driver asas.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">IT-020-3-C01</span></div><a class="open-btn" href="#exam">Buka bahan</a></article>
-          <article class="resource-card" data-category="task"><div class="resource-icon">02</div><h3>Computer System Maintenance</h3><p>Preventive maintenance, cleaning, update, backup dan checklist servis.</p><div class="tag-row"><span class="tag">Tugasan</span><span class="tag">Amali</span></div><a class="open-btn" href="#exam">Mula tugasan</a></article>
-          <article class="resource-card" data-category="video"><div class="resource-icon">03</div><h3>Computer System Repair</h3><p>Troubleshooting hardware, software, boot failure dan basic diagnostic flow.</p><div class="tag-row"><span class="tag">Video</span><span class="tag">Repair</span></div><a class="open-btn" href="#exam">Tonton</a></article>
-          <article class="resource-card" data-category="note"><div class="resource-icon">04</div><h3>Server Installation</h3><p>Asas server role, storage, user account, permission dan network service.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Server</span></div><a class="open-btn" href="#exam">Baca nota</a></article>
-          <article class="resource-card" data-category="task"><div class="resource-icon">05</div><h3>Network Connectivity Setup</h3><p>IP address, subnet, gateway, DNS, switch, router dan ujian sambungan.</p><div class="tag-row"><span class="tag">Tugasan</span><span class="tag">Network</span></div><a class="open-btn" href="#exam">Mula amali</a></article>
-          <article class="resource-card" data-category="quiz"><div class="resource-icon">06</div><h3>Security Setup</h3><p>Antivirus, firewall, password policy, backup dan kawalan akses sistem.</p><div class="tag-row"><span class="tag">Quiz</span><span class="tag">Security</span></div><a class="open-btn" href="#exam">Jawab quiz</a></article>
+          <article class="resource-card" data-category="note video quiz task"><div class="resource-icon">01</div><h3>Computer System Setup</h3><p>Komponen komputer, BIOS/UEFI, OS installation dan driver asas.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Video</span><span class="tag">Kuiz</span><span class="tag">Tugasan</span></div><a class="open-btn" href="#module01">Buka bahan</a></article>
+          <article class="resource-card" data-category="note video quiz task"><div class="resource-icon">02</div><h3>Computer System Maintenance</h3><p>Preventive maintenance, cleaning, update, backup dan checklist servis.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Video</span><span class="tag">Kuiz</span><span class="tag">Tugasan</span></div><a class="open-btn" href="#module02">Buka bahan</a></article>
+          <article class="resource-card" data-category="note video quiz task"><div class="resource-icon">03</div><h3>Computer System Repair</h3><p>Troubleshooting hardware, software, boot failure dan basic diagnostic flow.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Video</span><span class="tag">Kuiz</span><span class="tag">Tugasan</span></div><a class="open-btn" href="#module03">Buka bahan</a></article>
+          <article class="resource-card" data-category="note video quiz task"><div class="resource-icon">04</div><h3>Server Installation</h3><p>Asas server role, virtual machine, Ubuntu Server, Windows Server dan static IP.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Video</span><span class="tag">Kuiz</span><span class="tag">Tugasan</span></div><a class="open-btn" href="#module04">Buka bahan</a></article>
+          <article class="resource-card" data-category="note video quiz task"><div class="resource-icon">05</div><h3>Network Connectivity Setup</h3><p>IP address, subnet, gateway, DNS, switch, router dan ujian sambungan.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Video</span><span class="tag">Kuiz</span><span class="tag">Tugasan</span></div><a class="open-btn" href="#module05">Buka bahan</a></article>
+          <article class="resource-card" data-category="note video quiz task"><div class="resource-icon">06</div><h3>Security Setup</h3><p>Antivirus, firewall, password policy, backup, MFA dan kawalan akses sistem.</p><div class="tag-row"><span class="tag">Nota</span><span class="tag">Video</span><span class="tag">Kuiz</span><span class="tag">Tugasan</span></div><a class="open-btn" href="#module06">Buka bahan</a></article>
         </div>
+        <div id="lecturerMaterials" class="lecturer-materials"></div>
       </section>
 
       <section class="content-band">
@@ -101,31 +108,175 @@
         </div>
       </section>
 
-      <section id="exam" class="content-band" style="background:#f7fafc">
-        <h2 class="section-title">Final Exam - 60 Soalan Objektif</h2>
+      <section class="content-band" style="background:#f7fafc">
+        <h2 class="section-title">Modul Pembelajaran</h2>
         <div class="section-rule"></div>
-        <div class="exam-layout">
-          <article class="exam-card">
-            <h3>Final Exam Sistem Komputer</h3>
-            <p class="intro-copy" style="font-size:18px">Jawab semua soalan. Markah tertinggi akan masuk ranking Top 1.</p>
-            <div class="exam-meta"><div><strong>Soalan</strong><br />60</div><div><strong>Dijawab</strong><br /><span id="answeredCount">0/60</span></div><div><strong>Lulus</strong><br />60%</div></div>
-            <div id="finalExamQuestions"></div>
-            <div class="exam-actions">
-              <button id="submitFinalExam" class="primary-btn" type="button">Hantar Final Exam</button>
-              <span id="examStatus" class="status-note"></span>
+        <div class="module-detail-grid">
+          <article id="module01" class="module-detail-card" data-category="note video quiz task">
+            <div class="resource-icon">01</div>
+            <h3>Computer System Setup</h3>
+            <p class="module-objective">Objektif: Pelajar dapat mengenal pasti komponen komputer, menerangkan fungsinya dan melakukan konfigurasi asas sebelum komputer digunakan.</p>
+            <h4>Nota pembelajaran</h4>
+            <ul>
+              <li>Sistem komputer ialah gabungan perkakasan, perisian dan pengguna untuk menerima input, memproses data, menyimpan maklumat dan menghasilkan output.</li>
+              <li>Perkakasan ialah komponen fizikal seperti CPU, motherboard, RAM, storage, monitor, keyboard dan mouse.</li>
+              <li>CPU memproses arahan dan data, motherboard menghubungkan komponen utama, RAM menyimpan data sementara, manakala HDD/SSD menyimpan data kekal.</li>
+              <li>BIOS/UEFI berjalan sebelum sistem operasi untuk tetapan awal, masa/tarikh, boot priority dan konfigurasi hardware.</li>
+              <li>Driver membolehkan sistem operasi berkomunikasi dengan hardware seperti Wi-Fi, audio, printer dan graphic card.</li>
+            </ul>
+            <h4>Video YouTube berkaitan</h4>
+            <div class="video-link-grid">
+              <a href="https://www.youtube.com/results?search_query=pengenalan+komponen+komputer+CPU+RAM+SSD+motherboard+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Pengenalan komponen komputer</a>
+              <a href="https://www.youtube.com/results?search_query=cara+pasang+komputer+asas+build+PC+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Cara pasang komputer asas</a>
+              <a href="https://www.youtube.com/results?search_query=cara+install+Windows+11+USB+BIOS+boot+priority+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Install Windows / bootable USB</a>
             </div>
+            <h4>Kuiz ringkas</h4>
+            <ol class="mini-quiz">
+              <li>Apakah fungsi CPU? A. Menyimpan data B. Memproses arahan C. Mengeluarkan bunyi D. Menyambungkan internet</li>
+              <li>Apakah fungsi RAM? A. Simpan data kekal B. Bekalkan elektrik C. Memori sementara D. Paparkan grafik</li>
+              <li>Driver digunakan untuk apa? A. Menghubungkan hardware dengan sistem operasi B. Menambah RAM C. Memadam virus D. Membuka browser</li>
+            </ol>
+            <h4>Tugasan / Amali</h4>
+            <p>Kenal pasti sekurang-kurangnya lapan komponen komputer, terangkan fungsi setiap komponen, ambil gambar/screenshot, nyatakan spesifikasi komputer dan susun laporan PDF.</p>
           </article>
-          <aside class="leader-card">
-            <h3>Ranking Top 1</h3>
-            <div id="leaderboardTop"><p class="status-note">Login untuk lihat ranking semasa.</p></div>
-          </aside>
-        </div>
-      </section>
 
-      <section id="certificate" class="content-band">
-        <h2 class="section-title">E-Certificate</h2>
-        <div class="section-rule"></div>
-        <div id="certificateCard" class="certificate-card"></div>
+          <article id="module02" class="module-detail-card" data-category="note video quiz task">
+            <div class="resource-icon">02</div>
+            <h3>Computer System Maintenance</h3>
+            <p class="module-objective">Objektif: Pelajar dapat melakukan penyelenggaraan hardware dan software untuk memastikan komputer stabil, bersih dan selamat digunakan.</p>
+            <h4>Nota pembelajaran</h4>
+            <ul>
+              <li>Penyelenggaraan membantu mengurangkan overheating, virus, storage penuh, sistem perlahan dan kerosakan komponen.</li>
+              <li>Preventive maintenance dibuat sebelum masalah berlaku, corrective maintenance dibuat selepas kerosakan, predictive maintenance melihat tanda awal seperti suhu tinggi atau bunyi abnormal.</li>
+              <li>Bersihkan fan, heatsink, casing dan motherboard dengan peralatan sesuai serta semak kabel power, SATA, USB dan monitor.</li>
+              <li>Kemas kini sistem operasi, driver dan aplikasi; semak startup application dan gunakan Disk Cleanup atau Storage Sense.</li>
+              <li>Backup data ke external drive, Google Drive, OneDrive, NAS atau server organisasi.</li>
+            </ul>
+            <h4>Video YouTube berkaitan</h4>
+            <div class="video-link-grid">
+              <a href="https://www.youtube.com/results?search_query=cara+bersihkan+komputer+fan+casing+thermal+paste+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Cara membersihkan komputer</a>
+              <a href="https://www.youtube.com/results?search_query=Windows+Disk+Cleanup+Storage+Sense+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Disk Cleanup / Storage Sense</a>
+              <a href="https://www.youtube.com/results?search_query=cara+backup+file+Google+Drive+external+hard+disk+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Cara backup fail penting</a>
+            </div>
+            <h4>Kuiz ringkas</h4>
+            <ol class="mini-quiz">
+              <li>Apakah tujuan preventive maintenance? A. Tunggu rosak B. Mencegah masalah C. Beli komputer baru D. Padam OS</li>
+              <li>Apakah yang boleh menyebabkan overheating? A. RAM besar B. Fan penuh habuk C. Keyboard baru D. Internet laju</li>
+              <li>Disk Cleanup digunakan untuk apa? A. Membersihkan fail sementara B. Menambah RAM C. Menguatkan Wi-Fi D. Membuka server</li>
+            </ol>
+            <h4>Tugasan / Amali</h4>
+            <p>Sediakan checklist maintenance: semak storage, update OS/aplikasi, antivirus scan, backup satu folder dan lampirkan screenshot sebelum/selepas.</p>
+          </article>
+
+          <article id="module03" class="module-detail-card" data-category="note video quiz task">
+            <div class="resource-icon">03</div>
+            <h3>Computer System Repair</h3>
+            <p class="module-objective">Objektif: Pelajar dapat menggunakan langkah troubleshooting sistematik untuk mencari punca dan menyelesaikan masalah asas komputer.</p>
+            <h4>Nota pembelajaran</h4>
+            <ul>
+              <li>Troubleshooting ialah proses mengenal pasti, menganalisis dan menyelesaikan masalah komputer atau rangkaian.</li>
+              <li>Aliran kerja: kenal pasti masalah, semak punca, buat ujian, baiki dan sahkan sistem berfungsi semula.</li>
+              <li>Masalah biasa termasuk tiada paparan, komputer perlahan, blue screen, gagal boot, storage tidak dikesan dan Wi-Fi bermasalah.</li>
+              <li>Gunakan Task Manager, Device Manager, Disk Management, Command Prompt, Event Viewer dan Windows Memory Diagnostic.</li>
+            </ul>
+            <h4>Video YouTube berkaitan</h4>
+            <div class="video-link-grid">
+              <a href="https://www.youtube.com/results?search_query=komputer+hidup+tapi+tiada+display+check+RAM+monitor+kabel+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Komputer hidup tiada display</a>
+              <a href="https://www.youtube.com/results?search_query=check+RAM+Windows+Memory+Diagnostic+storage+problem+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Check RAM dan storage</a>
+              <a href="https://www.youtube.com/results?search_query=Task+Manager+komputer+slow+CPU+RAM+Disk+Windows+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Task Manager komputer slow</a>
+            </div>
+            <h4>Kuiz ringkas</h4>
+            <ol class="mini-quiz">
+              <li>Jika komputer hidup tetapi tiada paparan, apa yang boleh diperiksa dahulu? A. Printer B. Kabel monitor dan RAM C. Browser D. Speaker</li>
+              <li>Tool untuk melihat aplikasi guna banyak RAM? A. Task Manager B. Paint C. Notepad D. Calculator</li>
+              <li>Apakah maksud troubleshooting? A. Install game B. Mencari dan menyelesaikan masalah C. Backup data D. Cetak dokumen</li>
+            </ol>
+            <h4>Tugasan / Amali</h4>
+            <p>Pilih satu masalah komputer, nyatakan simptom, kemungkinan punca, langkah troubleshooting, penyelesaian akhir dan bukti screenshot/gambar.</p>
+          </article>
+
+          <article id="module04" class="module-detail-card" data-category="note video quiz task">
+            <div class="resource-icon">04</div>
+            <h3>Server Installation</h3>
+            <p class="module-objective">Objektif: Pelajar dapat menerangkan fungsi server dan memasang server asas dalam virtual machine dengan konfigurasi rangkaian yang betul.</p>
+            <h4>Nota pembelajaran</h4>
+            <ul>
+              <li>Server menyediakan perkhidmatan kepada komputer client dalam rangkaian seperti file server, web server, DNS, DHCP, database dan authentication.</li>
+              <li>Sistem operasi server termasuk Ubuntu Server, Windows Server, Debian Server dan Rocky Linux.</li>
+              <li>Server memerlukan processor stabil, RAM mencukupi, storage besar, network connection baik dan backup konsisten.</li>
+              <li>IP statik penting supaya alamat server kekal dan mudah dicapai oleh client.</li>
+              <li>Virtual machine seperti VirtualBox, VMware Workstation dan Proxmox membolehkan latihan server tanpa hardware server sebenar.</li>
+            </ul>
+            <h4>Video YouTube berkaitan</h4>
+            <div class="video-link-grid">
+              <a href="https://www.youtube.com/results?search_query=pengenalan+Ubuntu+Server+Windows+Server+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Pengenalan Ubuntu / Windows Server</a>
+              <a href="https://www.youtube.com/results?search_query=install+Ubuntu+Server+VirtualBox+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Install Ubuntu Server dalam VirtualBox</a>
+              <a href="https://www.youtube.com/results?search_query=set+static+IP+Ubuntu+Server+netplan+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Tetapkan static IP server</a>
+            </div>
+            <h4>Kuiz ringkas</h4>
+            <ol class="mini-quiz">
+              <li>Apakah fungsi server? A. Bermain game sahaja B. Menyediakan perkhidmatan kepada client C. Monitor D. Keyboard</li>
+              <li>Contoh server untuk menyimpan fail pengguna? A. File Server B. Game Server C. GPU Server D. Printer Driver</li>
+              <li>Software virtual machine? A. VirtualBox B. Microsoft Word C. Canva D. Chrome</li>
+            </ol>
+            <h4>Tugasan / Amali</h4>
+            <p>Install Ubuntu Server dalam VirtualBox, tetapkan nama server, username/password admin, static IP dan lampirkan screenshot pemasangan serta semakan IP.</p>
+          </article>
+
+          <article id="module05" class="module-detail-card" data-category="note video quiz task">
+            <div class="resource-icon">05</div>
+            <h3>Network Connectivity Setup</h3>
+            <p class="module-objective">Objektif: Pelajar dapat mengkonfigurasi sambungan rangkaian asas dan melakukan ujian menggunakan ipconfig, ping dan nslookup.</p>
+            <h4>Nota pembelajaran</h4>
+            <ul>
+              <li>Rangkaian komputer membolehkan peranti berkongsi data, internet, printer dan perkhidmatan server.</li>
+              <li>Router menghubungkan rangkaian ke internet, switch menghubungkan peranti dalam LAN, access point memberi Wi-Fi dan firewall mengawal trafik.</li>
+              <li>IP address mengenal pasti peranti, subnet mask menentukan julat rangkaian, gateway ialah laluan keluar dan DNS menukar domain kepada IP.</li>
+              <li>Command asas: ipconfig untuk konfigurasi IP, ping untuk ujian capaian dan nslookup untuk semakan DNS.</li>
+            </ul>
+            <h4>Video YouTube berkaitan</h4>
+            <div class="video-link-grid">
+              <a href="https://www.youtube.com/results?search_query=router+switch+access+point+fungsi+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Router, switch dan access point</a>
+              <a href="https://www.youtube.com/results?search_query=set+static+IP+Windows+11+subnet+gateway+DNS+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Set static IP Windows</a>
+              <a href="https://www.youtube.com/results?search_query=cara+ping+google+nslookup+Windows+command+prompt+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Ping dan NSLookup</a>
+            </div>
+            <h4>Kuiz ringkas</h4>
+            <ol class="mini-quiz">
+              <li>Apakah fungsi router? A. Sambung rangkaian ke internet B. Simpan fail C. Cetak dokumen D. Bersihkan komputer</li>
+              <li>Apakah fungsi DNS? A. Tambah RAM B. Tukar nama domain kepada IP C. Hapus virus D. Tambah storage</li>
+              <li>Command untuk menguji sambungan network? A. ping B. copy C. delete D. shutdown</li>
+            </ol>
+            <h4>Tugasan / Amali</h4>
+            <p>Tetapkan IP statik, subnet mask, gateway dan DNS; jalankan ipconfig, ping gateway, ping google.com dan nslookup google.com lalu laporkan hasil.</p>
+          </article>
+
+          <article id="module06" class="module-detail-card" data-category="note video quiz task">
+            <div class="resource-icon">06</div>
+            <h3>Security Setup</h3>
+            <p class="module-objective">Objektif: Pelajar dapat menerangkan ancaman asas dan melaksanakan tetapan keselamatan penting pada komputer serta akaun pengguna.</p>
+            <h4>Nota pembelajaran</h4>
+            <ul>
+              <li>Keselamatan sistem melindungi komputer, rangkaian, akaun dan data daripada ancaman, kerosakan atau akses tanpa kebenaran.</li>
+              <li>Ancaman biasa termasuk virus, malware, ransomware, phishing dan unauthorized access.</li>
+              <li>Password selamat sebaiknya minimum 12 aksara, unik dan menggabungkan huruf besar, huruf kecil, nombor serta simbol.</li>
+              <li>Firewall mengawal trafik masuk/keluar, antivirus mengesan malware, backup membantu pemulihan dan MFA menambah lapisan keselamatan.</li>
+            </ul>
+            <h4>Video YouTube berkaitan</h4>
+            <div class="video-link-grid">
+              <a href="https://www.youtube.com/results?search_query=virus+malware+ransomware+phishing+penerangan+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Virus, malware dan ransomware</a>
+              <a href="https://www.youtube.com/results?search_query=cara+aktifkan+Windows+Firewall+Windows+11+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Aktifkan Windows Firewall</a>
+              <a href="https://www.youtube.com/results?search_query=cara+buat+password+kuat+aktifkan+two+factor+authentication+MFA+Bahasa+Melayu" target="_blank" rel="noopener noreferrer">Password selamat dan MFA</a>
+            </div>
+            <h4>Kuiz ringkas</h4>
+            <ol class="mini-quiz">
+              <li>Apakah fungsi firewall? A. Membuka game B. Mengawal trafik rangkaian C. Menambah storage D. Tukar wallpaper</li>
+              <li>Apakah phishing? A. Memancing ikan B. Penipuan mencuri maklumat C. Bersihkan komputer D. Jenis storage</li>
+              <li>Apakah MFA? A. Multi-Factor Authentication B. Main File Access C. Memory Format Application D. Manual Firewall Access</li>
+            </ol>
+            <h4>Tugasan / Amali</h4>
+            <p>Semak antivirus, firewall, password latihan, backup satu folder penting, aplikasi/extension tidak dikenali dan sediakan laporan keselamatan dengan screenshot.</p>
+          </article>
+        </div>
       </section>
 
       <footer class="course-footer">
@@ -134,6 +285,6 @@
         <div><h3>MiCoSTSkills</h3><p>Lot 925, Blok C, Wisma Yayasan Melaka, Jalan Hang Tuah, 75300 Melaka.</p></div>
       </footer>
     </main>
-    <script src="./assets/js/elearning-script.js"></script>
+    <script src="./assets/js/elearning-script.js?v=komputer-modul-1"></script>
   </body>
 </html>

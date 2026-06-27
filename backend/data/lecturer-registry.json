@@ -1,0 +1,50 @@
+[
+  {
+    "name": "MOHAMMAD AMY BIN MD ALI",
+    "email": "Amy@micost.edu.my",
+    "role": "lecturer",
+    "department": "MiCoSTSkills",
+    "teaching_programs": [
+      "F432-005-2:2019",
+      "F432-005-3:2019",
+      "IT-020-3:2013",
+      "IT-020-4:2013"
+    ]
+  },
+  {
+    "name": "SARJUDIN BIN ZAINI YEE",
+    "email": "Sarjudin@micost.edu.my",
+    "role": "lecturer",
+    "department": "MiCoSTSkills",
+    "teaching_programs": [
+      "F432-005-2:2019",
+      "F432-005-3:2019",
+      "IT-020-3:2013",
+      "IT-020-4:2013"
+    ]
+  },
+  {
+    "name": "IZAH BINTI MD JEDI",
+    "email": "Izah@micost.edu.my",
+    "role": "lecturer",
+    "department": "MiCoSTSkills",
+    "teaching_programs": [
+      "F432-005-2:2019",
+      "F432-005-3:2019",
+      "IT-020-3:2013",
+      "IT-020-4:2013"
+    ]
+  },
+  {
+    "name": "IRNA NADIRA BINTI MAHZAN",
+    "email": "Irna@micost.edu.my",
+    "role": "lecturer",
+    "department": "MiCoSTSkills",
+    "teaching_programs": [
+      "F432-005-2:2019",
+      "F432-005-3:2019",
+      "IT-020-3:2013",
+      "IT-020-4:2013"
+    ]
+  }
+]

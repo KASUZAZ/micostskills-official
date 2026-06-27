@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Certificate Sistem Komputer - MiCoSTSkills</title>
+    <link rel="stylesheet" href="./dist/output.css" />
+    <link rel="stylesheet" href="./assets/css/elearning-style.css" />
+    <link rel="icon" href="./resources/MiCoST-Logo-Vector.svg-.png" type="image/png" />
+  </head>
+  <body class="elearning-body" data-course="komputer">
+    <main class="course-shell">
+      <div class="course-topline"></div>
+      <header class="course-header">
+        <div class="course-brand">
+          <img src="./resources/logo-micostskills.png" alt="MiCoSTSkills" />
+          <div class="course-brand-title">
+            <strong>E-Certificate</strong>
+            <span>Sistem Komputer</span>
+          </div>
+        </div>
+        <form id="courseLoginForm" class="login-bar">
+          <input id="courseEmail" class="login-field" type="email" placeholder="Username / Email" required />
+          <input id="coursePassword" class="login-field" type="password" placeholder="Password" required />
+          <button class="login-btn" type="submit" title="Login Student Portal" aria-label="Login Student Portal">›</button>
+          <a class="forgotten" href="./student.html">Forgotten password</a>
+          <p id="courseLoginStatus" class="status-note"></p>
+        </form>
+        <div id="courseUserChip" class="user-chip"></div>
+      </header>
+
+      <nav class="course-nav">
+        <a href="./elearning-komputer-full.html">Modul</a>
+        <a href="./elearning-komputer-exam.html">Final Exam</a>
+        <a href="./elearning-komputer-ranking.html">Ranking Top</a>
+        <a class="active" href="./elearning-komputer-certificate.html">E-Certificate</a>
+      </nav>
+
+      <section id="certificate" class="content-band">
+        <h1 class="section-title">E-Certificate Sistem Komputer</h1>
+        <div class="section-rule"></div>
+        <p class="intro-copy" style="max-width:760px">
+          Sijil digital akan dipaparkan selepas pelajar menghantar final exam. Jika sudah pernah menjawab,
+          sijil terbaik akan dimuatkan semula selepas login.
+        </p>
+        <div id="certificateCard" class="certificate-card certificate-card-visible">
+          <p class="status-note">Login dan lengkapkan final exam untuk menjana e-certificate.</p>
+        </div>
+      </section>
+
+      <footer class="course-footer">
+        <div><h3>E-Certificate</h3><p>Sijil boleh dimuat turun sebagai fail HTML dan dicetak melalui browser.</p></div>
+        <div><h3>Syarat</h3><p>Status lulus diberikan apabila markah final exam mencapai 60% atau lebih.</p></div>
+        <div><h3>MiCoSTSkills</h3><p>Sistem Komputer TVET E-Learning.</p></div>
+      </footer>
+    </main>
+    <script src="./assets/js/elearning-script.js?v=komputer-certificate-1"></script>
+  </body>
+</html>

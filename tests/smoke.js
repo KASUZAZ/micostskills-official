@@ -24,19 +24,16 @@ async function main() {
   }
 
   await page.goto(`${BASE_URL}/student-portal`, { waitUntil: "networkidle" });
-  await page.locator("#email").fill("student@micostskills.local");
-  await page.locator("#password").fill("student123");
-  await page.getByRole("button", { name: "Log Masuk" }).click();
-  await page.waitForSelector("text=Selamat Datang", { timeout: 10000 });
   await page.waitForSelector("text=Student Portal", { timeout: 10000 });
-  await page.screenshot({ path: path.join(SCREENSHOT_DIR, "qa-student-dashboard.png"), fullPage: false });
+  await page.waitForSelector("text=Daftar Akaun", { timeout: 10000 });
+  await page.screenshot({ path: path.join(SCREENSHOT_DIR, "qa-student-login.png"), fullPage: false });
 
   await page.evaluate(() => localStorage.clear());
   await page.goto(`${BASE_URL}/lecturer-portal`, { waitUntil: "networkidle" });
-  await page.locator("#email").fill("lecturer@micostskills.local");
+  await page.locator("#email").fill("Irna@micost.edu.my");
   await page.locator("#password").fill("lecturer123");
   await page.getByRole("button", { name: "Log Masuk" }).click();
-  await page.waitForSelector("text=Selamat Datang", { timeout: 10000 });
+  await page.waitForSelector("text=IRNA NADIRA BINTI MAHZAN", { timeout: 10000 });
   await page.waitForSelector("text=Keputusan CU", { timeout: 10000 });
   await page.screenshot({ path: path.join(SCREENSHOT_DIR, "qa-lecturer-dashboard.png"), fullPage: false });
 

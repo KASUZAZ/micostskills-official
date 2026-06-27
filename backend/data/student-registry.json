@@ -1,0 +1,464 @@
+[
+  {
+    "name": "MURUNGAN A/L SUPPIAH PILLAI",
+    "ic": "040402011375",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "NUR HAFIZA BINTI NAZARUDDIN",
+    "ic": "050917040190",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD UWAIS BIN MD SAFIAN",
+    "ic": "051116141515",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "NURUL NADIA BINTI MOHD NAZAR",
+    "ic": "040201010448",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "NOOR FASEHA BINTI MOHD HALIM",
+    "ic": "050412010340",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "VIRSIHNI RAJ A/L SELVANESAN",
+    "ic": "050704050301",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MEGAT DARWISYAH BIN MEGAT KHAIRUL AZRI",
+    "ic": "080610140063",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD IRFAN BIN ZULFIKAR",
+    "ic": "050301040029",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD NIZAM BIN ABDUL QADIR",
+    "ic": "971227565287",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "NUR ALISA SHAZLIYANA BINTI SUYKRI",
+    "ic": "051102040178",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "PUTRA AQEEL AQASYAH BIN MOHD FADLY",
+    "ic": "091227040047",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MOHAMMAD HAIRI BIN ABDULLAH",
+    "ic": "050913121081",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MOHANA A/P SEGER",
+    "ic": "040914040436",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD SHUIB BIN OMAR",
+    "ic": "040826040233",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD ZUHAIRIE BIN ABDULLAH",
+    "ic": "050903040173",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD IZZUDDIN BIN MUHAMAD",
+    "ic": "040714040351",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 2"
+  },
+  {
+    "name": "MUHAMMAD ARIF AIZUDDIN BIN MOHAMAD TARMIZI",
+    "ic": "040217100819",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD NAZMAWI BIN SOPIZAN",
+    "ic": "060921120109",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "AHMAD ZAKI RUZAIMI BIN MAT ZIN",
+    "ic": "040409101349",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD ARIFF BIN FARIZAL",
+    "ic": "080619021175",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD NUFAIL AYDIN BIN ABDULLAH SANI",
+    "ic": "070907100477",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "LUQMAN HAFIZI BIN ABD AZIZ ABIDI",
+    "ic": "071120101905",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD SYAWAL BIN ROSLAN",
+    "ic": "071024040129",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD HABIB ISYRAQI BIN MOHD ROSLI",
+    "ic": "070506140347",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD AMIR ASYRAF BIN MOHD AZIZ",
+    "ic": "071124040353",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMAD NORHAFIZ BIN MUHAMAD RASID",
+    "ic": "070918040123",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "AHMAD SALIHHIN KHAN BIN SAIFUL HAIZAD",
+    "ic": "061214040227",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD AKMAL HAZIQ BIN HAZRIL",
+    "ic": "070311040207",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD FARIS HAIKAL BIN MOHD FAZLI",
+    "ic": "070817040095",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "FATIN UMAIRAH BINTI KAMARUDDIN",
+    "ic": "070131040170",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "MUHAMMAD AIREL SHAZANNY BIN SUYKRI",
+    "ic": "071121040155",
+    "program": "F432-005-2:2019 Pemasangan dan Penyelenggaraan Elektrik",
+    "batch": "SKE Batch 2"
+  },
+  {
+    "name": "PUTERA DANIAL IMAN BIN ERMAN SHAH",
+    "ic": "100120011555",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "DANISH AIMAN HAZIQ BIN MOHD REDZUAN",
+    "ic": "070207140881",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MUHAMMAD NASRUHA AKIFF BIN JAFREN",
+    "ic": "070333141531",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "NUR SYAFIKA BINTI HAFIZI BIN AZAHAR",
+    "ic": "271188040629",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "DARSHEN RAJ A/L RABAN",
+    "ic": "030702040035",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MUHAMMAD HAFIZ BIN ROSLAN",
+    "ic": "071018040779",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "VISHNU THASAN A/L LOGANATHAN",
+    "ic": "050504040213",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "TARANITHARAN A/L CHANDRAN",
+    "ic": "090217010229",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "NUR AQILAH BINTI HAFIZ MOHD HASSAN",
+    "ic": "061123040673",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MOHAMAD IMRAN ARIFF BIN MOHD JOHAN",
+    "ic": "001110010563",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MUHAMMAD FARIS HAIKAL BIN MOHD RASID",
+    "ic": "101120010215",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "SYAFIQ KHIWAN NUR HAKIM BIN MISKADI",
+    "ic": "061011010042",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "RIYAN DANIAL BIN ZAFFRAN",
+    "ic": "060724040396",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "NUR ILYANA ALISA BINTI YUSOP",
+    "ic": "070719140342",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "PUTRI NAILIEZZA BALQISAH BINTI MOHAMMAD ZAHER",
+    "ic": "070703021064",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "NUR FARAH HADIYNA BINTI NORAZMI",
+    "ic": "050406041028",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "WILDAN HAKIM BIN AZLIZAN",
+    "ic": "070319040432",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "AISY NUR AMAAL SUTIYA BINTI AHMAD AZAN",
+    "ic": "070416011568",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MUHAMMAD ARIF BIN ABDULLAH",
+    "ic": "080826050453",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MUHAMMAD AMIRUL BIN ABDULLAH",
+    "ic": "070428050433",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "MOHAMAD ZAFERIL HAZMY BIN ZAHARI",
+    "ic": "070426040127",
+    "program": "IT-020-3:2013 Operasi Sistem Komputer",
+    "batch": "SKM Komputer Batch 10"
+  },
+  {
+    "name": "AMIRAH NADIRAH MOHD AZLIN",
+    "ic": "060812040054",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "NUR AINA BATRISYAH BINTI MUSTAFFA",
+    "ic": "060316040434",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "NURUL AIN BINTI ADNAN",
+    "ic": "061214040286",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "KARL AIRELL MUZZAMIL BIN SAIFEUL RIZAL",
+    "ic": "061006100715",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "KENT DAVIS LIEW",
+    "ic": "060330120107",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD AIZUL HAZIQ BIN AB RAZAK",
+    "ic": "060509040211",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD HAIQAL HAFIZUDDIN BIN ABDUL RAZAK",
+    "ic": "060203040155",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD IKMAL BIN ZAMZURI",
+    "ic": "050222060531",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD DANISH AFIQ BIN REDHUAN",
+    "ic": "050214100361",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMAD SHAHRIL BIN AZLIN SHAH",
+    "ic": "030829141057",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD AFIQ BIN AHMAD SUKRY",
+    "ic": "050310060603",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MOHAMAD RIDWAN NAZHAN BIN MOHD FARID",
+    "ic": "050606010541",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "AZHAD RASHID BIN MOHD SAM",
+    "ic": "060504010013",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD ALIFF SOLEHIN BIN HANAFI",
+    "ic": "020301110261",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "AHMAD KUZAIME BIN RUSLAN",
+    "ic": "061219100049",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD AMMAR BIN OSMAN",
+    "ic": "061210140853",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "PUTERA ANISH IERAYAN SHAHFAIZAL BIN ABDUL QAYYUM",
+    "ic": "060116070751",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "LUQMAN AL-HAKIM BIN ZAKARIA",
+    "ic": "020417060745",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD AIZAD AQASHA BIN CHE REDZUAN",
+    "ic": "050128030117",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD YUSUFF HUSSAMA BIN NORMAN",
+    "ic": "060525100253",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MUHAMMAD AZHAR HAIKAL BIN AZAHARY",
+    "ic": "060824101715",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "AHMAD HANIS AMMAR BIN AHMAD RAZIP",
+    "ic": "060304100655",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "AMIR SABRI BIN MOHAMMAD",
+    "ic": "000330031249",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MOHAMAD FARIS BIN MOHD NUSI",
+    "ic": "071121030571",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  },
+  {
+    "name": "MULNI ABDULLAH",
+    "ic": "061127120958",
+    "program": "IT-020-4:2013 Pentadbiran Sistem Komputer",
+    "batch": "DKM Batch 3"
+  }
+]

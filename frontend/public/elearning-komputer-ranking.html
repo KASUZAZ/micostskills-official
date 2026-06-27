@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ranking Sistem Komputer - MiCoSTSkills</title>
+    <link rel="stylesheet" href="./dist/output.css" />
+    <link rel="stylesheet" href="./assets/css/elearning-style.css" />
+    <link rel="icon" href="./resources/MiCoST-Logo-Vector.svg-.png" type="image/png" />
+  </head>
+  <body class="elearning-body" data-course="komputer">
+    <main class="course-shell">
+      <div class="course-topline"></div>
+      <header class="course-header">
+        <div class="course-brand">
+          <img src="./resources/logo-micostskills.png" alt="MiCoSTSkills" />
+          <div class="course-brand-title">
+            <strong>Ranking Top</strong>
+            <span>Sistem Komputer</span>
+          </div>
+        </div>
+        <form id="courseLoginForm" class="login-bar">
+          <input id="courseEmail" class="login-field" type="email" placeholder="Username / Email" required />
+          <input id="coursePassword" class="login-field" type="password" placeholder="Password" required />
+          <button class="login-btn" type="submit" title="Login Student Portal" aria-label="Login Student Portal">›</button>
+          <a class="forgotten" href="./student.html">Forgotten password</a>
+          <p id="courseLoginStatus" class="status-note"></p>
+        </form>
+        <div id="courseUserChip" class="user-chip"></div>
+      </header>
+
+      <nav class="course-nav">
+        <a href="./elearning-komputer-full.html">Modul</a>
+        <a href="./elearning-komputer-exam.html">Final Exam</a>
+        <a class="active" href="./elearning-komputer-ranking.html">Ranking Top</a>
+        <a href="./elearning-komputer-certificate.html">E-Certificate</a>
+      </nav>
+
+      <section class="content-band" style="background:#f7fafc">
+        <h1 class="section-title">Ranking Top Sistem Komputer</h1>
+        <div class="section-rule"></div>
+        <div class="exam-layout">
+          <aside class="leader-card">
+            <h3>Ranking Top 1</h3>
+            <div id="leaderboardTop"><p class="status-note">Login untuk lihat ranking semasa.</p></div>
+          </aside>
+          <article class="leader-card">
+            <h3>Senarai Ranking</h3>
+            <div class="table-scroll">
+              <table class="ranking-table">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Program</th>
+                    <th>Markah</th>
+                    <th>Betul</th>
+                    <th>ID Sijil</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboardRows">
+                  <tr><td colspan="6">Login untuk lihat ranking.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="course-footer">
+        <div><h3>Ranking</h3><p>Ranking disusun berdasarkan markah tertinggi final exam.</p></div>
+        <div><h3>Top 1</h3><p>Jika markah sama, rekod yang dihantar lebih awal diberi keutamaan.</p></div>
+        <div><h3>MiCoSTSkills</h3><p>Sistem Komputer TVET E-Learning.</p></div>
+      </footer>
+    </main>
+    <script src="./assets/js/elearning-script.js?v=komputer-ranking-1"></script>
+  </body>
+</html>
